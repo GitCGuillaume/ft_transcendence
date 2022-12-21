@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+        backend:
+                container_name: backend_tr
+                image: backend:v1.0
+                tty: true
+                build: docker/backend
+                ports:
+                  - 8080:3000
+                networks:
+                       - ft_transcendence
+                restart: on-failure
+                volumes:
+                        - backend:/var/www/html
+
+volumes:
+        backend:
+                name: backend
+                driver: local
+                driver_opts:
+                        type: none
+                        o: bind
+                        device: /home/gchopin/Documents/ft_transcendence/backend
+networks:
+        ft_transcendence:
