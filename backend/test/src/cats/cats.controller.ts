@@ -1,5 +1,7 @@
-import { Controller, Body, Get, Post, Req, Redirect, Param } from '@nestjs/common';
+import { Controller, Body, Get, Post, Req, Redirect, Param, HttpStatus, HttpException } from '@nestjs/common';
 import { Request } from 'express';
+import { CatsService } from './cats.service';
+import { Cat } from './interfaces/cat.interface';
 
 //Data transfert Object, define how data will be sent to network, typescript
 class CreateCatDto {
@@ -10,22 +12,30 @@ class CreateCatDto {
 
 @Controller()
 export class CatsController {
-	//curl -d "name=val" -X POST localhost:8080/cats
+	constructor(private catsService: CatsService) {}
+	//Add a cat to constructor CatsService
+	//curl -d "name=valName&age=10&breed=testBreed" -X POST localhost:8080/cats
 	@Post('cats')
 	async create(@Body() createCatDto: CreateCatDto) {
+		this.catsService.create(createCatDto);
 		return `post, ${createCatDto.name}\n`;
 	}
 	@Get('cats')
-	findAll(@Req() request: Request): string {
-		return "This action return all cats.";
+	async findAll(): Promise<Cat[]> {
+		return this.catsService.findAll();
 	}
 
 	@Get('cats/:id')
-	findOne(@Param() params: any): string {
-		console.log(params.id);
-		return `This action return cat id: ${params.id}.`;
+	async findOne(@Param('id') id: number): Promise<Cat> {
+		console.log(id);
+		return this.catsService.findOne(id);
 	}
 	@Get('redirect')
 	@Redirect('/', 301)
 	redirect() {}
+	@Get('throw')
+	async except() {
+		throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+	}
 }
+
