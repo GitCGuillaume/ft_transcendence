@@ -20,6 +20,6 @@ volumes:
                 driver_opts:
                         type: none
                         o: bind
-                        device: /home/gchopin/Documents/ft_transcendence/backend
+                        device: /mnt/nfs/homes/gchopin/Documents/ft_transcendence/backend
 networks:
         ft_transcendence:
