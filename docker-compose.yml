@@ -11,7 +11,7 @@ services:
                        - ft_transcendence
                 restart: on-failure
                 volumes:
-                        - backend:/var/www/html
+                        - ./backend:/var/www/html
         frontend_gc_test:
           container_name: frontend_gc_test
           image: frontend_gc_test
@@ -23,23 +23,7 @@ services:
             - ft_transcendence
           restart: on-failure
           volumes:
-            - frontend_gc:/var/www/html
-
-volumes:
-        backend:
-                name: backend
-                driver: local
-                driver_opts:
-                        type: none
-                        o: bind
-                        device: /mnt/nfs/homes/gchopin/Documents/ft_transcendence/backend
-        frontend_gc:
-          name: frontend_gc
-          driver: local
-          driver_opts:
-            type: none
-            o: bind
-            device: /mnt/nfs/homes/gchopin/Documents/ft_transcendence/frontend/gchopin
+            - ./frontend/gchopin:/var/www/html
 
 networks:
         ft_transcendence:
