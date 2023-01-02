@@ -11,6 +11,8 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
 	<Form />
+  <Form />
+  <Form />
   </React.StrictMode>
 );
 
