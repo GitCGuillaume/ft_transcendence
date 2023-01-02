@@ -17,6 +17,7 @@ export default class Form extends React.Component<Props, State> {
 		this.onChange = this.onChange.bind(this);
 		this.onSubmit = this.onSubmit.bind(this);
 	}
+
 	onChange = (e: ChangeEvent<HTMLInputElement>): void => {
 		const name = e.currentTarget.name;// as string;
 		const value = e.currentTarget.value;// as string;
