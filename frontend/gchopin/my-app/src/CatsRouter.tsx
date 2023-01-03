@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import { Routes, Route, Link } from "react-router-dom";
-
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Link, Outlet } from "react-router-dom";
+import NotFound from './NotFound';
+const Form = React.lazy(() => import("./TestForm"));
 type Cats = {
 	name: string,
 	age: number,
@@ -8,9 +9,9 @@ type Cats = {
 	text: string
 }
 
-const GetCats = ({name, age, breed, text}: Cats) => {
+const GetCats = ({}) => {
     //quick Getter test with hook
-    const [cats, setCats] = useState<Cats[]>({} as Cats[]);
+    const [cats, setCats] = useState<Cats[]>([] as Cats[]);
 
     const getCats = async () => {
         const res = await fetch("http://localhost:8080/cats")
@@ -20,11 +21,12 @@ const GetCats = ({name, age, breed, text}: Cats) => {
     useEffect(() => {
         getCats();
         }, []);
+    let i = 0;
     return (
         <ul>
       {cats &&
         cats.map((cat) => (
-          <li>
+          <li key={++i}>
             name: {cat.name} age: {cat.age} breed: {cat.breed}
           </li>
         ))}
@@ -32,8 +34,12 @@ const GetCats = ({name, age, breed, text}: Cats) => {
         );
 }
 
-const NavCats = ({}) => {
+const Root = ({}) => {
     return (
+      <>
+        <Form />
+        <Form />
+        <Form />
         <nav>
         <ul>
           <li>
@@ -44,6 +50,8 @@ const NavCats = ({}) => {
           </li>
         </ul>
       </nav>
+      <Outlet />
+      </>
     )
 };
 
@@ -51,11 +59,14 @@ const NavCats = ({}) => {
 
 const CatsRouter = ({ }) => {
     return (
+      <React.Suspense>
         <Routes>
-            <Route path="/" element={<NavCats/>}>
-                <Route path="/cats" element={<GetCats/>}></Route>
+            <Route path="*" element={<NotFound />}/>
+            <Route path="/" element={<Root />}>
+                <Route index path="/cats" element={<GetCats />} />
             </Route>
         </Routes>
+      </React.Suspense>
     )
 };
 
