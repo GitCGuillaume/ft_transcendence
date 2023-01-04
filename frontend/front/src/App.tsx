@@ -5,12 +5,14 @@ import "./App.css";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Homepage />} />
-        <Route path="/counter" element={<Counter />} />
-      </Routes>
-    </Router>
+    <>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Homepage />} />
+          <Route path="/counter" element={<Counter />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 

@@ -7,7 +7,7 @@ function CounterButton() {
   const navigate = useNavigate();
 
   function handleClick() {
-    navigate("/Counter");
+    navigate("/counter");
   }
 
   return (
