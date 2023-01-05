@@ -6,7 +6,7 @@ services:
                 tty: true
                 build: docker/backend
                 ports:
-                  - 8080:3000
+                  - 5000:3000
                 networks:
                        - ft_transcendence
                 restart: on-failure
@@ -25,5 +25,24 @@ services:
           volumes:
             - ./frontend:/var/www/html
 
+        postgres:
+          image: postgres
+          restart: always
+          environment:
+           POSTGRES_PASSWORD: root
+           POSTGRESQL_POSTGRES_PASSWORD: root
+          volumes:
+            - db:/var/lib/postgresql/data
+          ports:
+            - 5432:5432
+
+        adminer:
+            image: adminer
+            restart: always
+            ports:
+               - 8080:8080
+
+volumes:
+ db:
 networks:
         ft_transcendence:
