@@ -25,22 +25,18 @@ services:
           volumes:
             - ./frontend:/var/www/html
 
-        postgres:
-          image: postgres
-          restart: always
-          environment:
-           POSTGRES_PASSWORD: root
-           POSTGRESQL_POSTGRES_PASSWORD: root
+        postgres_tr:
+          container_name: postgres_tr
+          image: db
+          tty: true
+          build: docker/db
+          restart: on-failure
           volumes:
             - db:/var/lib/postgresql/data
           ports:
-            - 5432:5432
-
-        adminer:
-            image: adminer
-            restart: always
-            ports:
-               - 8080:8080
+                  - "5432:5432"
+          networks:
+            - ft_transcendence
 
 volumes:
  db:

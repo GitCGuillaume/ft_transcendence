@@ -1,3 +1,6 @@
 FROM postgres:latest
 EXPOSE 5432
-RUN /bin/bash -c 'chmod +x /var/lib/postgresql/data'
+volume /var/lib/postgresql/data
+COPY entrypoint.sh /home
+ENTRYPOINT ["sh", "/home/entrypoint.sh"]
+CMD ["su", "postgres", "-c", "'postgres'"]
