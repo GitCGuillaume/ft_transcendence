@@ -1,0 +1,21 @@
+server {
+	listen 80;
+	listen [::]:80;
+	server_name gchopin.42.fr;
+	root /var/www/html/adminer;
+	error_log /var/log/nginx/error.log;
+	index index.php;
+	location / {
+		#autoindex on; #directory listing
+		# First attempt to serve request as file, then
+		# as directory, then fall back to displaying a 404.
+		try_files $uri $uri/ =404;
+	}
+	location ~ [^/]\.php(/|$) {
+		try_files $uri $uri/ =404;
+		include fastcgi_params;
+		fastcgi_index index.php;
+		fastcgi_pass adminer:9002;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+	}
+}
