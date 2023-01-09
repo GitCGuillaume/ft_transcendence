@@ -49,7 +49,6 @@ services:
                         - ft_transcendence
                 volumes:
                         - db:/var/lib/postgresql/data
-                        - ./frontend:/var/www/html
                 restart: on-failure
                 depends_on:
                   - "postgres_tr"

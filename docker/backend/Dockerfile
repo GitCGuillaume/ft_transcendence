@@ -1,8 +1,7 @@
 FROM node:19-alpine3.16
-LABEL user="gchopin"
-LABEL mail="gchopin@student.42.fr"
+USER root
 volume	/var/www/html
-COPY entrypoint.sh /home/node
+COPY entrypoint.sh /usr/bin
 WORKDIR /var/www/html
 RUN npm i -g @nestjs/cli
 WORKDIR /var/www/html/test
@@ -10,5 +9,6 @@ ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-ENTRYPOINT ["sh", "/home/node/entrypoint.sh"]
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]
 CMD ["npm", "run", "start:dev"]

@@ -1,5 +1,6 @@
 FROM debian:10.12
-VOLUME /var/www/html
+USER root
+RUN mkdir -p /var/www/html
 RUN apt-get update -y && apt-get upgrade -y && apt-get install wget -y
 RUN mkdir -p /run/php
 RUN apt-get install -y php7.3 php7.3-common php7.3-fpm php7.3-cgi php7.3-mysql php7.3-pgsql nginx
