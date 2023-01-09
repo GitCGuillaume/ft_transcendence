@@ -1,59 +1,71 @@
 version: "3.9"
 services:
-        backend:
-                container_name: backend_tr
-                image: backend:v1.0
-                tty: true
-                build: docker/backend
-                ports:
-                  - 5000:3000
-                networks:
-                       - ft_transcendence
-                restart: on-failure
-                volumes:
-                        - ./backend:/var/www/html
-        frontend_tr:
-          container_name: frontend_tr
-          image: frontend
-          tty: true
-          build: docker/frontend
-          ports:
-            - 5173:5173
-          networks:
-            - ft_transcendence
-          restart: on-failure
-          volumes:
-            - ./frontend:/var/www/html
+  backend:
+    container_name: backend_tr
+    image: backend:v1.0
+    tty: true
+    build: docker/backend
+    ports:
+      - 5000:3000
+    networks:
+      - ft_transcendence
+    restart: on-failure
+    volumes:
+      - ./backend:/var/www/html
+  frontend_tr:
+    container_name: frontend_tr
+    image: frontend
+    tty: true
+    build: docker/frontend
+    ports:
+      - 5173:5173
+    networks:
+      - ft_transcendence
+    restart: on-failure
+    volumes:
+      - ./frontend:/var/www/html
 
-        postgres_tr:
-          container_name: postgres_tr
-          image: db
-          tty: true
-          build: docker/db
-          restart: on-failure
-          volumes:
-            - db:/var/lib/postgresql/data
-          ports:
-                  - "5432:5432"
-          networks:
-            - ft_transcendence
+  postgres_tr:
+    container_name: postgres_tr
+    image: db
+    tty: true
+    build: docker/db
+    restart: on-failure
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ft_transcendence
 
-        adminer:
-                container_name: adminer
-                image: adminer:v1.0
-                tty: true
-                build: docker/adminer
-                ports:
-                  - "9002:80"
-                networks:
-                        - ft_transcendence
-                volumes:
-                        - db:/var/lib/postgresql/data
-                restart: on-failure
-                depends_on:
-                  - "postgres_tr"
-
+  adminer:
+    container_name: adminer
+    image: adminer:v1.0
+    tty: true
+    build: docker/adminer
+    ports:
+      - "9002:80"
+    networks:
+      - ft_transcendence
+    volumes:
+      - db:/var/lib/postgresql/data
+    restart: on-failure
+    depends_on:
+      - "postgres_tr"
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    networks:
+      - ft_transcendence
+    volumes:
+      - ./nginx/reverse_proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    command: [ nginx-debug, "-g", "daemon off;" ]
+    ports:
+      - "4000:80"
+    depends_on:
+      - frontend_tr
+      - backend
 volumes:
- db:
+  db:
 networks:
-        ft_transcendence:
+  ft_transcendence:
