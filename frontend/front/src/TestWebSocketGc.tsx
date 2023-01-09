@@ -34,12 +34,12 @@ class Chat extends React.Component<Props, {}> {
     }
 }
 
-export default class WebSocketTestGc extends React.Component<{}, State> {
+export default class WebSocketTestGc extends React.Component<{ id: number }, State> {
     constructor(props: any) {
         super(props);
         this.state = {
             lstMsg: [{
-                id: 0,
+                id: this.props.id,
                 content: ''
             }],
             msg: '',
@@ -78,7 +78,7 @@ export default class WebSocketTestGc extends React.Component<{}, State> {
     }
     render() {
         return (
-            <section>
+            <section>``
                 <article>
                     <a href="/">go to /</a><br />
                     <button onClick={this.onClick}>Test join websocket room(channel)</button>
