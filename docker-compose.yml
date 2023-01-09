@@ -56,5 +56,9 @@ services:
 
 volumes:
  db:
+  driver_opts:
+    type: volume
+    device: ./db
+    o: bind
 networks:
         ft_transcendence:

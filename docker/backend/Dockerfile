@@ -1,7 +1,7 @@
 FROM node:19-alpine3.16
 USER root
 volume	/var/www/html
-COPY entrypoint.sh /home/node
+COPY entrypoint.sh /home/node --chown root
 WORKDIR /var/www/html
 RUN npm i -g @nestjs/cli
 WORKDIR /var/www/html/test

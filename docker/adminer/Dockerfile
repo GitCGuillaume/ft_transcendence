@@ -5,10 +5,10 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install wget -y
 RUN mkdir -p /run/php
 RUN apt-get install -y php7.3 php7.3-common php7.3-fpm php7.3-cgi php7.3-mysql php7.3-pgsql nginx
 RUN wget -P /tmp https://github.com/vrana/adminer/releases/download/v4.8.1/adminer-4.8.1-en.php
-COPY php-fpm.conf /etc/php/7.3/fpm/php-fpm.conf
-COPY www.conf /etc/php/7.3/fpm/pool.d/www.conf
-COPY entrypoint.sh /usr/bin
-COPY conf/default /etc/nginx/sites-enabled/default
+COPY php-fpm.conf /etc/php/7.3/fpm/php-fpm.conf --chown root
+COPY www.conf /etc/php/7.3/fpm/pool.d/www.conf --chown root
+COPY entrypoint.sh /usr/bin --chown root
+COPY conf/default /etc/nginx/sites-enabled/default --chown root
 RUN rm /var/www/html/index.nginx-debian.html;
 RUN chmod +x /usr/bin/entrypoint.sh
 ENTRYPOINT ["/usr/bin/entrypoint.sh"]
