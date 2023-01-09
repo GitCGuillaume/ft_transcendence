@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FormEvent } from 'react';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 type Props = {
     lstMsg: Array<{
@@ -13,7 +13,8 @@ type State = {
         id: number,
         content: string,
     }>,
-    msg: string
+    msg: string,
+    socket: Socket<any, any>
 }
 
 class Chat extends React.Component<Props, {}> {
@@ -43,6 +44,11 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
                 content: ''
             }],
             msg: '',
+            socket: io("http://localhost:5000", {
+                auth: {
+                    token: "abcd"
+                }
+            })
         }
         this.onClick = this.onClick.bind(this);
         this.onChange = this.onChange.bind(this);
@@ -50,13 +56,13 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
     }
     onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        const socket = io("http://localhost:8080");
-        socket.emit('joinTestRoom', "msg", (res: any) => {
+        this.state.socket.emit('joinTestRoom', "msg", (res: any) => {
             console.log(res);
+            this.state.socket.on("roomCreated", (res: {}) => {
+                console.log("My id is: " + this.state.socket.id);
+                console.log(res);
+            })
         });
-        socket.on("roomCreated", (res) => {
-            console.log(res);
-        })
     };
     onChange = (e: ChangeEvent<HTMLInputElement>): void => {
         const value = e.currentTarget.value;
@@ -64,7 +70,7 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
     }
     onSubmit = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        const socket = io("http://localhost:8080");
+        const socket = io("http://localhost:5000");
         socket.emit('events', { msg: this.state.msg }, (res: any) => {
             console.log(res);
             const element = {

@@ -49,16 +49,11 @@ services:
                         - ft_transcendence
                 volumes:
                         - db:/var/lib/postgresql/data
-                        - ./frontend:/var/www/html
                 restart: on-failure
                 depends_on:
                   - "postgres_tr"
 
 volumes:
  db:
-  driver_opts:
-    type: volume
-    device: ./db
-    o: bind
 networks:
         ft_transcendence:

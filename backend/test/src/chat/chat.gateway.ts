@@ -20,9 +20,8 @@ export class ChatGateway {
   @SubscribeMessage('joinTestRoom')
   handleJoinTest(@ConnectedSocket() client: Socket
     , server: Server): string {
-    client.join('room1');
-    console.log(client.id + " joined room1");
-    client.to('room1').emit('roomCreated'
+    client.join(client.handshake.auth.token);
+    client.broadcast.to(client.handshake.auth.token).emit('roomCreated'
       , 'client: ' + client.id + ' joined room');
     return ("Joined test room");
   }
