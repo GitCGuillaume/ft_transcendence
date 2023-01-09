@@ -6,7 +6,7 @@ services:
                 tty: true
                 build: docker/backend
                 ports:
-                  - 8080:3000
+                  - 5000:3000
                 networks:
                        - ft_transcendence
                 restart: on-failure
@@ -25,5 +25,36 @@ services:
           volumes:
             - ./frontend:/var/www/html
 
+        postgres_tr:
+          container_name: postgres_tr
+          image: db
+          tty: true
+          build: docker/db
+          restart: on-failure
+          volumes:
+            - db:/var/lib/postgresql/data
+          ports:
+                  - "5432:5432"
+          networks:
+            - ft_transcendence
+
+        adminer:
+                container_name: adminer
+                image: adminer:v1.0
+                tty: true
+                build: docker/adminer
+                ports:
+                  - "9002:80"
+                networks:
+                        - ft_transcendence
+                volumes:
+                        - db:/var/lib/postgresql/data
+                        - ./frontend:/var/www/html
+                restart: on-failure
+                depends_on:
+                  - "postgres_tr"
+
+volumes:
+ db:
 networks:
         ft_transcendence:
