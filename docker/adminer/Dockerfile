@@ -1,4 +1,5 @@
 FROM debian:10.12
+USER root
 VOLUME /var/www/html
 RUN apt-get update -y && apt-get upgrade -y && apt-get install wget -y
 RUN mkdir -p /run/php

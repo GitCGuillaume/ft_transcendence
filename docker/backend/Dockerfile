@@ -1,6 +1,5 @@
 FROM node:19-alpine3.16
-LABEL user="gchopin"
-LABEL mail="gchopin@student.42.fr"
+USER root
 volume	/var/www/html
 COPY entrypoint.sh /home/node
 WORKDIR /var/www/html
