@@ -8,6 +8,8 @@ services:
     networks:
       - ft_transcendence
     restart: on-failure
+    expose:
+      - "3000"
     volumes:
       - ./backend:/var/www/html
   frontend_tr:
@@ -18,6 +20,9 @@ services:
     networks:
       - ft_transcendence
     restart: on-failure
+    expose:
+      - "5173"
+      - "5174"
     volumes:
       - ./frontend:/var/www/html
 
@@ -58,6 +63,7 @@ services:
     command: [ nginx-debug, "-g", "daemon off;" ]
     ports:
       - "4000:80"
+      - "5174:5174"
     depends_on:
       - frontend_tr
       - backend

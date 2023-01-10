@@ -7,7 +7,7 @@ import { Socket, Server } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: "http://localhost:5173", credential: true
+    origin: "http://localhost:4000", credential: true
   }
 })
 export class ChatGateway {
@@ -20,6 +20,7 @@ export class ChatGateway {
   @SubscribeMessage('joinTestRoom')
   handleJoinTest(@ConnectedSocket() client: Socket
     , server: Server): string {
+    console.log("event joinTestRoom");
     client.join(client.handshake.auth.token);
     client.broadcast.to(client.handshake.auth.token).emit('roomCreated'
       , 'client: ' + client.id + ' joined room');

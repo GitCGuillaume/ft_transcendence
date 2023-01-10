@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FormEvent } from 'react';
 import { io, Socket } from 'socket.io-client';
-
+import { Link } from "react-router-dom";
 type Props = {
     lstMsg: Array<{
         id: number,
@@ -44,15 +44,21 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
                 content: ''
             }],
             msg: '',
-            socket: io("http://localhost:5000", {
-                auth: {
-                    token: "abcd"
-                }
-            })
+            socket: io()
         }
         this.onClick = this.onClick.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+    }
+    componentDidMount(): void {
+        this.setState({
+            socket: io("http://localhost:4000/api/", {
+                auth: {
+                    token: "abcd"
+                },
+            })
+        })
+        console.log("mounted");
     }
     onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -70,7 +76,7 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
     }
     onSubmit = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        const socket = io("http://localhost:5000");
+        const socket = io("http://localhost:4000/");
         socket.emit('events', { msg: this.state.msg }, (res: any) => {
             console.log(res);
             const element = {
@@ -84,9 +90,11 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
     }
     render() {
         return (
-            <section>``
+            <section>
                 <article>
-                    <a href="/">go to /</a><br />
+                    <nav>
+                        <Link to="/">Home</Link>
+                    </nav>
                     <button onClick={this.onClick}>Test join websocket room(channel)</button>
                 </article>
                 <article>
