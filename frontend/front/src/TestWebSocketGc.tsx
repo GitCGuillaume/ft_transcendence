@@ -52,7 +52,7 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
     }
     componentDidMount(): void {
         this.setState({
-            socket: io("http://localhost:4000/api/", {
+            socket: io("http://localhost:4000", {
                 auth: {
                     token: "abcd"
                 },
@@ -76,7 +76,7 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
     }
     onSubmit = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        const socket = io("http://localhost:4000/");
+        const socket = io("http://localhost:4000");
         socket.emit('events', { msg: this.state.msg }, (res: any) => {
             console.log(res);
             const element = {
