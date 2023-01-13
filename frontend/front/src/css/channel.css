@@ -113,7 +113,10 @@ input[type="radio"] {
     }
 
     table {
-        margin: auto;
+	   max-width:600px;
+	   width:100%;
+	   min-width:100px;
+	    margin: auto;
         display: table;
     }
 }

@@ -53,7 +53,7 @@ class ListChannel extends React.Component<{}, State> {
             {this.state.listChannel &&
                 this.state.listChannel.map((chan) => (
                     <tr key={++i}>
-                        <td><Link to={{ pathname: "/channels/" + chan.id }}>{chan.name}</Link></td><td>{chan.owner}</td><td><TypeAccess access={chan.access} /></td>
+                        <td><Link to={{ pathname: "/channels/" + chan.id }}  state={{ name: chan.name }}>{chan.name}</Link></td><td>{chan.owner}</td><td><TypeAccess access={chan.access} /></td>
                     </tr>
                 ))
             }
