@@ -2,8 +2,11 @@ import { useState } from "react";
 import AudioPlayer from 'react-h5-audio-player';
 
 //Royalty-free music!!
+//Fizzy Honey Lemon Soda 350ml - しゃろう
 import Fizzy from '../assets/FizzySharou.mp3';
+//10°C - しゃろう
 import TenC from '../assets/10CSharou.mp3';
+//Summer Triangle - しゃろう
 import SummerTriangle from '../assets/SummerTriangleSharou.mp3';
 
 import './PlayerApp.css';
