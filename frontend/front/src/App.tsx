@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Counter from "./components/Counter";
 import Homepage from "./components/Homepage";
+import PlayerApp from "./components/PlayerApp";
 import WebSocketTestGc from './TestWebSocketGc'
 import "./App.css";
 
@@ -14,6 +15,7 @@ function App() {
           <Route path="/ws" element={<WebSocketTestGc id={0} />} />
         </Routes>
       </Router>
+      <PlayerApp />
     </>
   );
 }
