@@ -1,7 +1,8 @@
 import {
   SubscribeMessage, WebSocketGateway, MessageBody
-  , ConnectedSocket, WebSocketServer
+  , ConnectedSocket, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 } from '@nestjs/websockets';
+import {ChatService} from './chat.service';
 import { isObject } from 'class-validator';
 import { Socket, Server } from 'socket.io';
 
@@ -10,7 +11,12 @@ import { Socket, Server } from 'socket.io';
     origin: "http://localhost:4000", credential: true
   }
 })
-export class ChatGateway {
+export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  @WebSocketServer() server: Server;
+  afterInit(server: Server){}
+
+
+/* Tests ws */
   handleConnection(client: Socket) {
     console.log("connect client id: " + client.id);
   }
@@ -19,11 +25,13 @@ export class ChatGateway {
   }
   @SubscribeMessage('joinTestRoom')
   handleJoinTest(@ConnectedSocket() client: Socket
-    , server: Server): string {
+    , server: Server): any {
     console.log("event joinTestRoom");
     client.join(client.handshake.auth.token);
     client.broadcast.to(client.handshake.auth.token).emit('roomCreated'
       , 'client: ' + client.id + ' joined room');
+    const sockets = this.server.sockets.adapter.rooms;
+    console.log(sockets);
     return ("Joined test room");
   }
   @SubscribeMessage('events')

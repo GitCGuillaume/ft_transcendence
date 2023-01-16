@@ -3,8 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CatsModule } from './cats/cats.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
-import { ChatGateway } from './chat/chat.gateway';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
 	imports: [CatsModule, TypeOrmModule.forRoot({
@@ -16,9 +16,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 		database: 'postgres',
 		entities: [],
 		synchronize: false,
-	})],
+	}), ChatModule],
 	controllers: [AppController],
-	providers: [AppService, ChatGateway],
+	providers: [AppService],
 })
 export class AppModule implements NestModule {
 	configure(consumer: MiddlewareConsumer) {

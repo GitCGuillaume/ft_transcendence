@@ -44,11 +44,12 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
                 content: ''
             }],
             msg: '',
-            socket: io()
+            socket: io(),
         }
         this.onClick = this.onClick.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.newChan = this.newChan.bind(this);
     }
     componentDidMount(): void {
         this.setState({
@@ -88,6 +89,19 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
             });
         });
     }
+    newChan = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const res:any = fetch('http://localhost:4000/api/chat/new/', {
+			method: 'post',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({
+				id: 0,
+                name: this.state.msg,
+                owner: 0,
+                accessType: 0,
+			})
+		})
+    }
     render() {
         return (
             <section>
@@ -99,6 +113,11 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
                 </article>
                 <article>
                     <form onSubmit={this.onSubmit}>
+                        <input type="text" name="msg"
+                            value={this.state.msg} onChange={this.onChange} />
+                        <input type="submit" value="Envoyer" />
+                    </form>
+                    <form onSubmit={this.newChan}>
                         <input type="text" name="msg"
                             value={this.state.msg} onChange={this.onChange} />
                         <input type="submit" value="Envoyer" />

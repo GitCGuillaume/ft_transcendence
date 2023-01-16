@@ -41,10 +41,10 @@ span.chatBox {
 	text-align: left;
 	margin:auto;
 	margin-left: 10px;
-	overflow-wrap: break-word;
+	overflow-wrap: break-word;*/
 	margin-bottom: 20px;
 	margin-right:10px;
-	max-width:1200px;
+	width: 100%;
 	min-width: 0;
 }
 
@@ -141,6 +141,6 @@ table.tableInfo {
         width: 100%;
     }
     span.chatBox {
-	max-width:400px;
+	    width:100%;
     }
 }
