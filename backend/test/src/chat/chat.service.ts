@@ -3,11 +3,21 @@ import { Chat } from './chat.interface';
 
 @Injectable()
 export class ChatService {
-    private readonly chats: Chat[] = [];
-    getAll(): Chat[] {
-		  return this.chats;
+    private readonly publicChats: Chat[] = [];
+    private readonly privateChats: Chat[] = [];
+    getAllPublic(): Chat[] {
+		  return this.publicChats;
 	  }
-    create(chat: Chat){
-      this.chats.push(chat);
+    getAllPrivate(): Chat[] {
+		  return this.privateChats;
+	  }
+    createPublic(chat: Chat, id: number){
+      chat.id = id;
+      this.publicChats.push(chat);
+    }
+    createPrivate(chat: Chat, id: string): Chat{
+      chat.id = id;
+      this.privateChats.push(chat);
+      return (this.privateChats[this.privateChats.length - 1]);
     }
 }

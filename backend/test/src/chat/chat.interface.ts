@@ -1,8 +1,9 @@
 import { IsString, IsInt } from 'class-validator';
 
 export interface Chat {
-    id: number;
+    id: number | string;
     name: string;
     owner: number;
-    accessType: number;
+    accessType: string;
+    password: string;
 }

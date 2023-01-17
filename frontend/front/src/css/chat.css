@@ -19,20 +19,37 @@
 	width: 100%;
 }
 
+.fullBox{
+    display:block !important;
+    width:100% !important;
+    height:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    text-align: left !important;
+}
+
 .sendMsg{
 	flex: 1;
 	height:40px;
 }
 
-.chatBox {
-	
+.chatLeave{
+    margin: auto;
+    border-radius: 0;
+    border: 1px solid transparent;
+    font-family: inherit;
+    background-color: #337ab7;
+    color: white;
+    padding: 1em;
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
 }
 
 label.chatBox {
 	align-self: flex-start;
 	text-align: left;
 	overflow-wrap: break-word;
-	width: 100px;
+	width: 100%;
 	min-width: 0px;
 	margin-left: 20px;
 }
