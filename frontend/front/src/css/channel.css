@@ -1,6 +1,6 @@
 /* BASIC VIEW */
 
-.container {
+.containerChannel {
     display: flex;
     flex-flow: row wrap;
     justify-content: center;
@@ -113,10 +113,10 @@ input[type="radio"] {
     }
 
     table {
-	   max-width:600px;
-	   width:100%;
-	   min-width:100px;
-	    margin: auto;
+        max-width: 600px;
+        width: 100%;
+        min-width: 100px;
+        margin: auto;
         display: table;
     }
 }

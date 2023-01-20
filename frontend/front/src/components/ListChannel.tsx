@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FormEvent, MouseEvent} from 'react';
+import React, { ChangeEvent, FormEvent, MouseEvent } from 'react';
 import { Link, Outlet } from "react-router-dom";
 import "../css/channel.css"
 
@@ -9,9 +9,9 @@ type State = {
         owner: string,
         accessType: number,
     }>,
-	channelName: string,
-	rad: string,
-	password: string
+    channelName: string,
+    rad: string,
+    password: string
 }
 
 type Props = {
@@ -50,25 +50,33 @@ class ListChannel extends React.Component<{}, State> {
             })
     }
     onChange = (e: ChangeEvent<HTMLInputElement>): void => {
-		const name = e.currentTarget.name;
-		const value = e.currentTarget.value;
-		this.setState((prevState => (
-			{ ...prevState, [name]: value }
-		)));
-	};
-	onSubmit = (e: FormEvent<HTMLFormElement>): void => {
+        const name = e.currentTarget.name;
+        const value = e.currentTarget.value;
+        this.setState((prevState => (
+            { ...prevState, [name]: value }
+        )));
+    };
+    onSubmit = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        if (this.state.rad == "0")
-        {
-            const res:any = fetch('http://localhost:4000/api/chat/new-public/', {
+        let elem = new Map<string, number>;
+
+        /* Can't send a map to HTTP REQUEST so need convert */
+        if (this.state.rad == "0") {
+            const res: any = fetch('http://localhost:4000/api/chat/new-public/', {
                 method: 'post',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: 0,
+                    id: '0',
                     name: this.state.channelName,
                     owner: 0,
                     accessType: this.state.rad,
                     password: this.state.password,
+                    lstMsg: [],
+                    lstUsr: [],
+                    setMute: {key: "test", value: 123},
+                    setBan: {key: "test2", value: 1234},
+		    lstMute: {},
+                    lstBan: new Map<string, number>(),
                 })
             }).then(res => res.json()).then(res => {
                 this.setState({
@@ -76,11 +84,10 @@ class ListChannel extends React.Component<{}, State> {
                 })
             });
         }
-        else
-        {
-            const res:any = fetch('http://localhost:4000/api/chat/new-private/', {
+        else {
+            const res: any = fetch('http://localhost:4000/api/chat/new-private/', {
                 method: 'post',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     id: '',
                     name: this.state.channelName,
@@ -94,8 +101,8 @@ class ListChannel extends React.Component<{}, State> {
                 });
             });
         }
-	}
-	PrintList = (): JSX.Element => {
+    }
+    PrintList = (): JSX.Element => {
         let i: number = 0;
         const TypeAccess = (props: Props): JSX.Element => {
             const access: number = props.access;
@@ -110,14 +117,14 @@ class ListChannel extends React.Component<{}, State> {
             {this.state.listChannel &&
                 this.state.listChannel.map((chan) => (
                     <tr key={++i}>
-                        <td><Link to={{ pathname: "/channels/" + chan.id }}  state={{ name: chan.name }}>{chan.name}</Link></td><td>{chan.owner}</td><td><TypeAccess access={chan.accessType} /></td>
+                        <td><Link to={{ pathname: "/channels/" + chan.id}} state={{ name: chan.name, id: chan.id, username: "" }}>{chan.name}</Link></td><td>{chan.owner}</td><td><TypeAccess access={chan.accessType} /></td>
                     </tr>
                 ))
             }
         </tbody>)
     }
     render(): JSX.Element {
-        return (<section className='container'>
+        return (<section className='containerChannel'>
             <h1>List channels + (affichage liste privée à faire + persist dtb)</h1>
             <article className='left'>
                 <table>
@@ -133,12 +140,12 @@ class ListChannel extends React.Component<{}, State> {
                 <button onClick={this.onClick}>Update</button>
                 <form onSubmit={this.onSubmit}>
                     <input type="text" onChange={this.onChange} placeholder='Enter channel name' name="channelName" />
-                    <input type="radio" onChange={this.onChange} name="rad" value="0"/><label>Public</label>
+                    <input type="radio" onChange={this.onChange} name="rad" value="0" /><label>Public</label>
                     <input type="radio" onChange={this.onChange} name="rad" value="1" /><label>Private</label>
                     <input type="text" onChange={this.onChange} placeholder='Password' name="password" />
                     <input type="submit" onChange={this.onChange} value="Add Channel" />
-                </form>   
-	        </article>
+                </form>
+            </article>
             <Outlet />
         </section>);
     }

@@ -2,9 +2,10 @@ import {
   SubscribeMessage, WebSocketGateway, MessageBody
   , ConnectedSocket, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 } from '@nestjs/websockets';
-import {ChatService} from './chat.service';
 import { isObject } from 'class-validator';
 import { Socket, Server } from 'socket.io';
+import { CreateChatDto } from './create-chat.dto';
+import { Chat } from './chat.interface';
 
 @WebSocketGateway({
   cors: {
@@ -13,10 +14,38 @@ import { Socket, Server } from 'socket.io';
 })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
-  afterInit(server: Server){}
+  afterInit(server: Server) { }
+  private readonly publicChats: Chat[] = [];
+  private readonly privateChats: Chat[] = [];
 
+  getAllPublic(): Chat[] {
+    return this.publicChats;
+  }
+  getAllPrivate(): Chat[] {
+    return this.privateChats;
+    }
+  getChannel(id: string): Chat {
+	return (this.publicChats[0]);
+  }
+  createPublic(chat: CreateChatDto, id: string) {
+    chat.id = id;
+    let newChat:Chat = {
+      id: chat.id, name: chat.name, owner: chat.owner,
+      accessType: chat.accessType, password: chat.password,
+      lstMsg: chat.lstMsg, lstUsr: chat.lstUsr, lstMute: chat.lstMute,
+      lstBan: chat.lstBan
+      };
+      console.log(newChat);
+    this.publicChats.push(newChat);
+  }
+  createPrivate(chat: Chat, id: string): Chat {
+    chat.id = id;
+    //this.privateChats.find(this.pri);
+    this.privateChats.push(chat);
+    return (this.privateChats[this.privateChats.length - 1]);
+  }
 
-/* Tests ws */
+  /* Tests ws */
   handleConnection(client: Socket) {
     console.log("connect client id: " + client.id);
   }
@@ -24,8 +53,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     console.log("disconnect client id: " + client.id);
   }
   @SubscribeMessage('joinTestRoom')
-  handleJoinTest(@ConnectedSocket() client: Socket
-    , server: Server): any {
+  async handleJoinTest(@ConnectedSocket() client: Socket
+  , server: Server): Promise<any> {
     console.log("event joinTestRoom");
     client.join(client.handshake.auth.token);
     client.broadcast.to(client.handshake.auth.token).emit('roomCreated'
