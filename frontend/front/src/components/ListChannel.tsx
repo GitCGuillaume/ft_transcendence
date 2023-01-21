@@ -32,7 +32,7 @@ class ListChannel extends React.Component<{}, State> {
         this.onSubmit = this.onSubmit.bind(this);
     }
     componentDidMount = (): void => {
-        fetch('http://localhost:4000/api/chat/list/')
+        fetch('http://'+ location.host + '/api/chat/list/')
             .then(res => res.json())
             .then(res => {
                 this.setState({
@@ -41,7 +41,7 @@ class ListChannel extends React.Component<{}, State> {
             })
     }
     onClick = (e: MouseEvent<HTMLButtonElement>): void => {
-        fetch('http://localhost:4000/api/chat/list/')
+        fetch('http://' + location.host + '/api/chat/list/')
             .then(res => res.json())
             .then(res => {
                 this.setState({
@@ -62,7 +62,7 @@ class ListChannel extends React.Component<{}, State> {
 
         /* Can't send a map to HTTP REQUEST so need convert */
         if (this.state.rad == "0") {
-            const res: any = fetch('http://localhost:4000/api/chat/new-public/', {
+            const res: any = fetch('http://'+ location.host + '/api/chat/new-public/', {
                 method: 'post',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -75,7 +75,7 @@ class ListChannel extends React.Component<{}, State> {
                     lstUsr: [],
                     setMute: {key: "test", value: 123},
                     setBan: {key: "test2", value: 1234},
-		    lstMute: {},
+		            lstMute: {},
                     lstBan: new Map<string, number>(),
                 })
             }).then(res => res.json()).then(res => {
@@ -85,7 +85,7 @@ class ListChannel extends React.Component<{}, State> {
             });
         }
         else {
-            const res: any = fetch('http://localhost:4000/api/chat/new-private/', {
+            const res: any = fetch('http://' + location.host + '/api/chat/new-private/', {
                 method: 'post',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -117,7 +117,7 @@ class ListChannel extends React.Component<{}, State> {
             {this.state.listChannel &&
                 this.state.listChannel.map((chan) => (
                     <tr key={++i}>
-                        <td><Link to={{ pathname: "/channels/" + chan.id}} state={{ name: chan.name, id: chan.id, username: "" }}>{chan.name}</Link></td><td>{chan.owner}</td><td><TypeAccess access={chan.accessType} /></td>
+                        <td><Link to={{ pathname: "/channels/" + chan.id}} state={{ name: chan.name, username: "" }}>{chan.name}</Link></td><td>{chan.owner}</td><td><TypeAccess access={chan.accessType} /></td>
                     </tr>
                 ))
             }

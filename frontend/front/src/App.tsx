@@ -5,6 +5,7 @@ import ListChannel from "./components/ListChannel";
 import Chat from "./components/Chat";
 import WebSocketTestGc from './TestWebSocketGc'
 import "./App.css";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function App() {
   return (
@@ -15,7 +16,7 @@ function App() {
           <Route path="/counter" element={<Counter />} />
           <Route path="/ws" element={<WebSocketTestGc id={0} />} />
           <Route path="/channels" element={<ListChannel />}>
-            <Route path=":id" element={<Chat />} />
+            <Route path=":id" element={<ErrorBoundary><Chat /></ErrorBoundary>} />
           </Route>
         </Routes>
       </Router>

@@ -9,7 +9,7 @@ import { Chat } from './chat.interface';
 
 @WebSocketGateway({
   cors: {
-    origin: "http://localhost:4000", credential: true
+    origin: "http://127.0.0.1:4000", credential: true
   }
 })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -23,9 +23,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
   getAllPrivate(): Chat[] {
     return this.privateChats;
-    }
+  }
   getChannel(id: string): Chat {
-	return (this.publicChats[0]);
+	  return (this.publicChats[0]);
   }
   createPublic(chat: CreateChatDto, id: string) {
     chat.id = id;
@@ -35,7 +35,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       lstMsg: chat.lstMsg, lstUsr: chat.lstUsr, lstMute: chat.lstMute,
       lstBan: chat.lstBan
       };
-      console.log(newChat);
+    console.log(newChat);
     this.publicChats.push(newChat);
   }
   createPrivate(chat: Chat, id: string): Chat {

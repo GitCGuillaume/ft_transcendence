@@ -1,4 +1,4 @@
-import { Controller, Param, Get, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Request, Req, Param, Get, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
 /*import { ChatService } from './chat.service';*/
 import { ChatGateway } from './chat.gateway';
 import { Chat } from './chat.interface';
@@ -52,9 +52,9 @@ export class ChatController {
 
     @Get(':id')
     async getChannel(@Param('id') id: string): Promise<Chat> {
-	const channel:Chat = this.chatGateway.getChannel(id);
+	    const channel:Chat = this.chatGateway.getChannel(id);
 
-	return (channel);
+	    return (channel);
     }
     @Post('new-public')
     async postNewPublicChat(@Body() chat: CreateChatDto): Promise<Chat[]> {
@@ -63,9 +63,9 @@ export class ChatController {
 	if (chat.accessType != '0')
             throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
         if (chat.password != '')
-		chat.accessType = '1';
-	chat.lstMute = new Map<string, number>([[chat.setMute.key, chat.setMute.value]]);
-	chat.lstBan = new Map<string, number>([[chat.setBan.key, chat.setBan.value]]);
+		    chat.accessType = '1';
+	    chat.lstMute = new Map<string, number>([[chat.setMute.key, chat.setMute.value]]);
+	    chat.lstBan = new Map<string, number>([[chat.setBan.key, chat.setBan.value]]);
         this.chatGateway.createPublic(chat, len);
         //create public room
         /*pas fou de retourner le psw, à changer*/

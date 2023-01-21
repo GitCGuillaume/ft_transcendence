@@ -53,7 +53,7 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
     }
     componentDidMount(): void {
         this.setState({
-            socket: io("http://localhost:4000", {
+            socket: io('http://'+ location.host, {
                 auth: {
                     token: "abcd"
                 },
@@ -77,7 +77,7 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
     }
     onSubmit = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        const socket = io("http://localhost:4000");
+        const socket = io('http://'+ location.host);
         socket.emit('events', { msg: this.state.msg }, (res: any) => {
             console.log(res);
             const element = {
@@ -91,7 +91,7 @@ export default class WebSocketTestGc extends React.Component<{ id: number }, Sta
     }
     newChan = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const res:any = fetch('http://localhost:4000/api/chat/new/', {
+        const res:any = fetch('http://'+ location.host +'/api/chat/new/', {
 			method: 'post',
 			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({
