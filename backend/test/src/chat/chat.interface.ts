@@ -1,4 +1,9 @@
-import { IsString, IsInt } from 'class-validator';
+export interface InformationChat {
+    id: number | string,
+    name: string,
+    owner: number,
+    accessType: string,
+}
 
 export interface Chat {
     id: string,

@@ -1,12 +1,13 @@
 import { IsString, IsInt, IsArray, ValidateNested, IsObject, IsDefined, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class Pair {
+/* Pair for ban and mute */
+/*class Pair {
     @IsString()
     key: string;
     @IsNumber()
     value: number
-}
+}*/
 
 export class CreateChatDto {
     @IsString()
@@ -34,7 +35,7 @@ export class CreateChatDto {
         content: string
     }>;
 
-    @IsDefined()
+    /*@IsDefined()
     @IsObject()
     @ValidateNested()
     @Type(() => Pair)
@@ -43,7 +44,7 @@ export class CreateChatDto {
     @IsObject()
     @ValidateNested()
     @Type(() => Pair)
-    setBan: Pair;
+    setBan: Pair;*/
     
     @IsDefined()
     @ValidateNested()

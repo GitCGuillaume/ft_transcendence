@@ -73,8 +73,8 @@ class ListChannel extends React.Component<{}, State> {
                     password: this.state.password,
                     lstMsg: [],
                     lstUsr: [],
-                    setMute: {key: "test", value: 123},
-                    setBan: {key: "test2", value: 1234},
+                    //setMute: {key: "test", value: 123},
+                    //setBan: {key: "test2", value: 1234},
 		            lstMute: {},
                     lstBan: new Map<string, number>(),
                 })
@@ -105,7 +105,7 @@ class ListChannel extends React.Component<{}, State> {
     PrintList = (): JSX.Element => {
         let i: number = 0;
         const TypeAccess = (props: Props): JSX.Element => {
-            const access: number = props.access;
+            const access: Readonly<number> = props.access;
             if (access == 0)
                 return (<>Public</>)
             else

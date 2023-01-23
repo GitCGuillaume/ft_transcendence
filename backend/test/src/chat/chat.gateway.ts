@@ -5,7 +5,7 @@ import {
 import { isObject } from 'class-validator';
 import { Socket, Server } from 'socket.io';
 import { CreateChatDto } from './create-chat.dto';
-import { Chat } from './chat.interface';
+import { Chat, InformationChat } from './chat.interface';
 
 @WebSocketGateway({
   cors: {
@@ -21,11 +21,27 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   getAllPublic(): Chat[] {
     return this.publicChats;
   }
+  getAllPublicByName(): InformationChat[] {
+    let arrName:InformationChat[] = [];
+  
+    const size:number = this.publicChats.length;
+  
+    for (let i:number = 0; i < size; ++i)
+    {
+      arrName[i] = {
+        id: this.publicChats[i].id, name: this.publicChats[i].name,
+          owner: this.publicChats[i].owner, accessType: this.publicChats[i].accessType
+      };
+    }
+    return arrName;
+  }
   getAllPrivate(): Chat[] {
     return this.privateChats;
   }
-  getChannel(id: string): Chat {
-	  return (this.publicChats[0]);
+  getChannel(id: string): undefined | Chat {
+    const elem:number = this.publicChats.findIndex(x => x.id == id)
+  
+	  return (this.publicChats[elem]);
   }
   createPublic(chat: CreateChatDto, id: string) {
     chat.id = id;
