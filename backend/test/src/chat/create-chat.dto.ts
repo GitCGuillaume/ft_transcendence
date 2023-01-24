@@ -8,6 +8,16 @@ import { Type } from 'class-transformer';
     @IsNumber()
     value: number
 }*/
+/*@IsDefined()
+ @IsObject()
+ @ValidateNested()
+ @Type(() => Pair)
+ setMute: Pair;
+ @IsDefined()
+ @IsObject()
+ @ValidateNested()
+ @Type(() => Pair)
+ setBan: Pair;*/
 
 export class CreateChatDto {
     @IsString()
@@ -34,18 +44,6 @@ export class CreateChatDto {
         username: string,
         content: string
     }>;
-
-    /*@IsDefined()
-    @IsObject()
-    @ValidateNested()
-    @Type(() => Pair)
-    setMute: Pair;
-    @IsDefined()
-    @IsObject()
-    @ValidateNested()
-    @Type(() => Pair)
-    setBan: Pair;*/
-    
     @IsDefined()
     @ValidateNested()
     @Type(() => Map<string, number>)

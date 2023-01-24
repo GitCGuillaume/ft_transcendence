@@ -11,11 +11,30 @@ type State = {
     }>,
     channelName: string,
     rad: string,
-    password: string
+    password: string,
+    hasErrorPsw: boolean
+    hasErrorExist: boolean
 }
 
 type Props = {
     access: number,
+}
+
+const ErrorSubmit = (props: any) => {
+    if (props.hasErrorPsw === true
+        && props.hasErrorExist === false)
+        return (<p style={{ color: "red" }}>Channel name and password must not be the same, or a channel name must be inserted.</p>)
+    else if (props.hasErrorExist === true &&
+        props.hasErrorPsw === false)
+        return (<p style={{ color: "red" }}>Channel already exist</p>)
+    else if (props.hasErrorPsw === true
+        && props.hasErrorExist === true) {
+        return (<>
+            <p style={{ color: "red" }}>Channel name and password must not be the same.</p>
+            <p style={{ color: "red" }}>Channel already exist</p>
+        </>)
+    }
+    return (<></>);
 }
 
 class ListChannel extends React.Component<{}, State> {
@@ -25,14 +44,16 @@ class ListChannel extends React.Component<{}, State> {
             listChannel: [],
             channelName: '',
             rad: '0',
-            password: ''
+            password: '',
+            hasErrorPsw: false,
+            hasErrorExist: false
         }
         this.onClick = this.onClick.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
     }
     componentDidMount = (): void => {
-        fetch('http://'+ location.host + '/api/chat/list/')
+        fetch('http://' + location.host + '/api/chat/list/')
             .then(res => res.json())
             .then(res => {
                 this.setState({
@@ -45,7 +66,8 @@ class ListChannel extends React.Component<{}, State> {
             .then(res => res.json())
             .then(res => {
                 this.setState({
-                    listChannel: res
+                    listChannel: res, hasErrorPsw: false,
+                    hasErrorExist: false
                 })
             })
     }
@@ -62,7 +84,7 @@ class ListChannel extends React.Component<{}, State> {
 
         /* Can't send a map to HTTP REQUEST so need convert */
         if (this.state.rad == "0") {
-            const res: any = fetch('http://'+ location.host + '/api/chat/new-public/', {
+            const res: any = fetch('http://' + location.host + '/api/chat/new-public/', {
                 method: 'post',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -75,13 +97,21 @@ class ListChannel extends React.Component<{}, State> {
                     lstUsr: [],
                     //setMute: {key: "test", value: 123},
                     //setBan: {key: "test2", value: 1234},
-		            lstMute: {},
+                    lstMute: {},
                     lstBan: new Map<string, number>(),
                 })
             }).then(res => res.json()).then(res => {
-                this.setState({
-                    listChannel: res
-                })
+                console.log(res);
+                if (res.length === 1
+                    && (res[0] === "hasErrorPsw" || res[0] === "hasErrorExist")) {
+                    if (res[0] === "hasErrorPsw")
+                        this.setState({ hasErrorPsw: true, hasErrorExist: false });
+                    if (res[0] === "hasErrorExist")
+                        this.setState({ hasErrorPsw: false, hasErrorExist: true });
+                } else if (res.length === 2 && res[0] === "hasErrorPsw" && res[1] === "hasErrorExist")
+                    this.setState({ hasErrorPsw: true, hasErrorExist: true });
+                else
+                    this.setState({ listChannel: res, hasErrorPsw: false, hasErrorExist: false });
             });
         }
         else {
@@ -108,16 +138,14 @@ class ListChannel extends React.Component<{}, State> {
             const access: Readonly<number> = props.access;
             if (access == 0)
                 return (<>Public</>)
-            else
-                return (<>Password required</>)
-            return (<div></div>)
+            return (<>Password required</>)
         };
 
         return (<tbody>
             {this.state.listChannel &&
                 this.state.listChannel.map((chan) => (
                     <tr key={++i}>
-                        <td><Link to={{ pathname: "/channels/" + chan.id}} state={{ name: chan.name, username: "" }}>{chan.name}</Link></td><td>{chan.owner}</td><td><TypeAccess access={chan.accessType} /></td>
+                        <td><Link to={{ pathname: "/channels/" + chan.id }} state={{ name: chan.name, username: "" }}>{chan.name}</Link></td><td>{chan.owner}</td><td><TypeAccess access={chan.accessType} /></td>
                     </tr>
                 ))
             }
@@ -145,6 +173,7 @@ class ListChannel extends React.Component<{}, State> {
                     <input type="text" onChange={this.onChange} placeholder='Password' name="password" />
                     <input type="submit" onChange={this.onChange} value="Add Channel" />
                 </form>
+                <ErrorSubmit hasErrorPsw={this.state.hasErrorPsw} hasErrorExist={this.state.hasErrorExist} />
             </article>
             <Outlet />
         </section>);

@@ -22,15 +22,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return this.publicChats;
   }
   getAllPublicByName(): InformationChat[] {
-    let arrName:InformationChat[] = [];
-  
-    const size:number = this.publicChats.length;
-  
-    for (let i:number = 0; i < size; ++i)
-    {
+    let arrName: InformationChat[] = [];
+
+    const size: number = this.publicChats.length;
+
+    for (let i: number = 0; i < size; ++i) {
       arrName[i] = {
         id: this.publicChats[i].id, name: this.publicChats[i].name,
-          owner: this.publicChats[i].owner, accessType: this.publicChats[i].accessType
+        owner: this.publicChats[i].owner, accessType: this.publicChats[i].accessType
       };
     }
     return arrName;
@@ -38,20 +37,24 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   getAllPrivate(): Chat[] {
     return this.privateChats;
   }
-  getChannel(id: string): undefined | Chat {
-    const elem:number = this.publicChats.findIndex(x => x.id == id)
-  
-	  return (this.publicChats[elem]);
+  getChannelById(id: string): undefined | Chat {
+    const elem: number = this.publicChats.findIndex(x => x.id == id)
+
+    return (this.publicChats[elem]);
+  }
+  getChannelByName(name: string): undefined | Chat {
+    const elem: number = this.publicChats.findIndex(x => x.name == name)
+
+    return (this.publicChats[elem]);
   }
   createPublic(chat: CreateChatDto, id: string) {
     chat.id = id;
-    let newChat:Chat = {
+    let newChat: Chat = {
       id: chat.id, name: chat.name, owner: chat.owner,
       accessType: chat.accessType, password: chat.password,
       lstMsg: chat.lstMsg, lstUsr: chat.lstUsr, lstMute: chat.lstMute,
       lstBan: chat.lstBan
-      };
-    console.log(newChat);
+    };
     this.publicChats.push(newChat);
   }
   createPrivate(chat: Chat, id: string): Chat {
@@ -70,7 +73,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
   @SubscribeMessage('joinTestRoom')
   async handleJoinTest(@ConnectedSocket() client: Socket
-  , server: Server): Promise<any> {
+    , server: Server): Promise<any> {
     console.log("event joinTestRoom");
     client.join(client.handshake.auth.token);
     client.broadcast.to(client.handshake.auth.token).emit('roomCreated'
