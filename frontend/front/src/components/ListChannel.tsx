@@ -94,11 +94,11 @@ class ListChannel extends React.Component<{}, State> {
                     accessType: this.state.rad,
                     password: this.state.password,
                     lstMsg: [],
-                    lstUsr: [],
+                    lstUsr: {},
                     //setMute: {key: "test", value: 123},
                     //setBan: {key: "test2", value: 1234},
                     lstMute: {},
-                    lstBan: new Map<string, number>(),
+                    lstBan: {}
                 })
             }).then(res => res.json()).then(res => {
                 console.log(res);

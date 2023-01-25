@@ -12,17 +12,12 @@ export interface Chat {
     accessType: string,
     password: string,
     lstMsg: Array<{
-        avatarUrl: string,
         id: number | string,
-        username: string,
+        idUser: string,
+        username: string, //à enlever pour un find dans repository
         content: string
     }>,
-    lstUsr: Array<{
-        avatarUrl: string,
-        id: number | string,
-        username: string,
-        content: string
-    }>,
+    lstUsr: Map<number | string, string>,
     lstMute: Map<string, number>,
     lstBan: Map<string, number>,
 }

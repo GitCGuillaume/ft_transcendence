@@ -8,9 +8,9 @@ import { io, Socket } from 'socket.io-client';
 
 type lstMsg = {
     lstMsg: Array<{
-        avatarUrl: string,
         id: number | string,
-        username: string,
+        idUser: string,
+        username: string, //à enlever pour un find dans repository
         content: string
     }>
 }
@@ -34,10 +34,11 @@ const useListUser = () => {
     return (usr);
 }
 /* Set socket client */
-const useConnect = (idChat: Readonly<string>, name: Readonly<string>) => {
+const useConnect =
+    (idChat: Readonly<string>, name: Readonly<string>) => {
     const [usrId, setUsrId] = useState<string | null>(null);
     const [username, setUsrName] = useState<string | null>(null);
-    const [usrSocket, setSocket] = useState<Socket>(io("http://" + location.host));
+    //const [usrSocket, setSocket] = useState<Socket>();
 
     useEffect(() => {
         setUsrId(idChat);
@@ -46,30 +47,44 @@ const useConnect = (idChat: Readonly<string>, name: Readonly<string>) => {
     useEffect(() => {
         setUsrId(idChat);
         setUsrName(name);
+       // setSocket(io("http://" + location.host));
     }, [usrId, username]);
-    return ([usrId, username, usrSocket]);
+    return ([usrId, username]);
 }
 /* test socket */
 const onClick = (e: React.MouseEvent<HTMLButtonElement>, usrSocket: any) => {
     e.preventDefault();
-    usrSocket.emit('joinTestRoom', "msg", (res: any) => {
-        console.log(res);
-        usrSocket.on("roomCreated", (res: {}) => {
-            console.log(res);
-        })
-    });
+    usrSocket.emit('events', "msgGo");
 };
 
-/* besoin session utilisateur */
+/* besoin context utilisateur */
 
 const MainChat = (props: any) => {
     const Element = scroll.Element;
-    let [usrId, username, usrSocket] = useConnect(props.id, props.getLocation.state.username);
-
+    //const usrSocket = io("http://" + location.host);
+   // let [usrId, username] = useConnect(props.id, props.getLocation.state.username);
+    //const [usrSocket, setSocket] = useState<Socket>(io("http://" + location.host));
+    const [msgs, setMsg] = useState<null | string>(null);
+    const usrSocket = io("http://" + location.host);
     useEffect(() => {
         props.msgEnd?.current?.scrollIntoView({ behavior: "smooth" })
     });
+    useEffect(() => {
+        //subscribeChat
+        usrSocket.on("events", (res: any) => {
+            console.log(res);
+            setMsg(new Date().toISOString());
+        });
+        console.log("mount");
+        return (() => {
+            //unsubscribeChat
+            console.log("unmount");
+            usrSocket.off("events");
+            //usrSocket.;
+        })
+    }, []);
     return (<>
+    <p style={{color: "pink"}}>{msgs}</p>
         <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => onClick(e, usrSocket)}>Test join websocket room(channel)</button>
         <article className='containerChat'>
             <div className="chatName"><span style={{ flex: 1 }}>{props.getLocation.state.name}</span><button className='chatLeave'>Leave</button></div>
@@ -128,6 +143,7 @@ const hasPassword = (id: Readonly<string>): Promise<boolean> => {
     return (fetch('http://' + location.host + '/api/chat/has-paswd/' + id)
         .then(res => res.json()));
 }
+
 /* Ne doit pas pouvoir discuter sur le chat même en modifiant pass is valid à true
     besoin backend */
 const PasswordBox = (props: Readonly<any>): JSX.Element => {

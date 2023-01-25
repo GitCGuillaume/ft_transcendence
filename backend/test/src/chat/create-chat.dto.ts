@@ -32,18 +32,15 @@ export class CreateChatDto {
     password: string;
     @IsArray()
     lstMsg: Array<{
-        avatarUrl: string,
         id: number | string,
-        username: string,
+        idUser: string,
+        username: string, //à enlever pour un find dans repository
         content: string
     }>;
-    @IsArray()
-    lstUsr: Array<{
-        avatarUrl: string,
-        id: number | string,
-        username: string,
-        content: string
-    }>;
+    @IsDefined()
+    @ValidateNested()
+    @Type(() => Map<string, string>)
+    lstUsr: Map<number | string, string>
     @IsDefined()
     @ValidateNested()
     @Type(() => Map<string, number>)

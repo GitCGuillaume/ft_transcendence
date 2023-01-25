@@ -52,7 +52,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     let newChat: Chat = {
       id: chat.id, name: chat.name, owner: chat.owner,
       accessType: chat.accessType, password: chat.password,
-      lstMsg: chat.lstMsg, lstUsr: chat.lstUsr, lstMute: chat.lstMute,
+      lstMsg: chat.lstMsg,
+      lstUsr: chat.lstUsr, lstMute: chat.lstMute,
       lstBan: chat.lstBan
     };
     this.publicChats.push(newChat);
@@ -62,6 +63,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     //this.privateChats.find(this.pri);
     this.privateChats.push(chat);
     return (this.privateChats[this.privateChats.length - 1]);
+  }
+  setNewUserChannel(id: Readonly<string>,
+    idUsr: Readonly<number>, username: Readonly<string>): undefined | Chat {
+    const index = this.publicChats.findIndex(x => x.id == id);
+    if (index === -1)
+      return (undefined);
+    this.publicChats[index].lstUsr.set(idUsr, username);
+    return (this.publicChats[index]);
   }
 
   /* Tests ws */
@@ -76,7 +85,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     , server: Server): Promise<any> {
     console.log("event joinTestRoom");
     client.join(client.handshake.auth.token);
-    client.broadcast.to(client.handshake.auth.token).emit('roomCreated'
+    client.broadcast.to(client.handshake.auth.token).emit('joinTestRoom'
       , 'client: ' + client.id + ' joined room');
     const sockets = this.server.sockets.adapter.rooms;
     console.log(sockets);
@@ -84,9 +93,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
   @SubscribeMessage('events')
   handleEvents(@MessageBody() data: []
-    , @ConnectedSocket() client: Socket): [] {
-    console.log("data: " + data);
-    return (data);
+    , @ConnectedSocket() client: Socket) {
+      console.log(data);
+    this.server.emit("events", "msgBack");
   }
   @SubscribeMessage('message')
   handleMessage(client: any, payload: any): string {
