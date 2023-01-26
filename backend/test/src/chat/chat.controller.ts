@@ -89,7 +89,6 @@ export class ChatController {
             chat.accessType = '1';
             chat.password = bcrypt.hashSync(chat.password, salt);
         }
-        console.log(chat);
         this.chatGateway.createPublic(chat, len);
         //console.log(this.chatGateway.getAllPublicByName());
         return (this.chatGateway.getAllPublicByName());
@@ -103,7 +102,6 @@ export class ChatController {
         const channel = this.chatGateway.setNewUserChannel(id, idUser, username);
         if (typeof channel === "undefined")
             return (undefined);
-        console.log(channel);
         const convertChannel = {
             id: channel.id,
             name: channel.name,

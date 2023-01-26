@@ -2,10 +2,28 @@ import {
   SubscribeMessage, WebSocketGateway, MessageBody
   , ConnectedSocket, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 } from '@nestjs/websockets';
-import { isObject } from 'class-validator';
 import { Socket, Server } from 'socket.io';
 import { CreateChatDto } from './create-chat.dto';
 import { Chat, InformationChat } from './chat.interface';
+import { IsString } from 'class-validator';
+
+class SendMSg {
+  @IsString()
+  id: string;
+  @IsString()
+  idUser: number | string;
+  @IsString()
+  username: string;
+  @IsString()
+  name: string;
+}
+
+/*
+  middleware nestjs socket
+  https://github.com/nestjs/nest/issues/637
+  avec react context socket query token
+  BONUS part https://dev.to/bravemaster619/how-to-use-socket-io-client-correctly-in-react-app-o65
+*/
 
 @WebSocketGateway({
   cors: {
@@ -65,13 +83,42 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return (this.privateChats[this.privateChats.length - 1]);
   }
   setNewUserChannel(id: Readonly<string>,
-    idUsr: Readonly<number>, username: Readonly<string>): undefined | Chat {
+    idUsr: Readonly<number | string>, username: Readonly<string>): undefined | Chat {
+    console.log("setNewUserChannel");
     const index = this.publicChats.findIndex(x => x.id == id);
     if (index === -1)
       return (undefined);
     this.publicChats[index].lstUsr.set(idUsr, username);
     return (this.publicChats[index]);
   }
+  /* Socket part */
+  @SubscribeMessage('joinRoomChat')
+  async joinRoomChat(@ConnectedSocket() socket: Socket, @MessageBody() data: SendMSg): Promise<string> {
+    console.log("joinRoomChat");
+    const newUser = this.setNewUserChannel(data.id, data.idUser, data.username);
+    if (typeof newUser === "undefined")
+      return ("error");
+    socket.join(data.id + data.name);
+    console.log(this.getChannelById(data.id));
+    return (data + "room successfully joined");
+  }
+  @SubscribeMessage('leaveRoomChat')
+  async leaveRoomChat(@MessageBody() data: any): Promise<string | undefined> {
+    const index = this.publicChats.findIndex(x => x.id == data.id);
+    if (index === -1)
+      return (undefined);
+    const getUser = this.publicChats[index].lstUsr.get(data.idUser);
+    if (typeof getUser === "undefined")
+      return ("User not found");
+    this.publicChats[index].lstUsr.delete(data.idUser);
+    console.log(this.getChannelById(data.id));
+    return ("User left the chat");
+  }
+  @SubscribeMessage('sendMsg')
+  newPostChat(@ConnectedSocket() socket: Socket,
+    server: Server, @MessageBody() data: SendMSg){
+      console.log(data);
+    }
 
   /* Tests ws */
   handleConnection(client: Socket) {
@@ -93,9 +140,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
   @SubscribeMessage('events')
   handleEvents(@MessageBody() data: []
-    , @ConnectedSocket() client: Socket) {
-      console.log(data);
-    this.server.emit("events", "msgBack");
+    , @ConnectedSocket() socket: Socket) {
+      /*console.log(data);
+      console.log(this.publicChats.length);
+      console.log(socket.handshake.query);*/
+    this.server.emit("events", socket.id);
   }
   @SubscribeMessage('message')
   handleMessage(client: any, payload: any): string {

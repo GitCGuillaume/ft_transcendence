@@ -32,7 +32,6 @@ export class CreateChatDto {
     password: string;
     @IsArray()
     lstMsg: Array<{
-        id: number | string,
         idUser: string,
         username: string, //à enlever pour un find dans repository
         content: string

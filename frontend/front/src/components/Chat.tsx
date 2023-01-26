@@ -1,14 +1,14 @@
-import React, { useEffect, useRef, MutableRefObject, useState } from 'react';
+import React, { useEffect, useRef, MutableRefObject, useState, useContext } from 'react';
 import ListUser from './ListUser';
 import "../css/chat.css";
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import img from "../assets/react.svg";
 import scroll from 'react-scroll';
-import { io, Socket } from 'socket.io-client';
+//import { io, Socket } from 'socket.io-client';
+import {SocketContext} from '../contexts/Socket';
 
 type lstMsg = {
     lstMsg: Array<{
-        id: number | string,
         idUser: string,
         username: string, //à enlever pour un find dans repository
         content: string
@@ -33,61 +33,67 @@ const useListUser = () => {
     }
     return (usr);
 }
-/* Set socket client */
-const useConnect =
-    (idChat: Readonly<string>, name: Readonly<string>) => {
-    const [usrId, setUsrId] = useState<string | null>(null);
-    const [username, setUsrName] = useState<string | null>(null);
-    //const [usrSocket, setSocket] = useState<Socket>();
 
-    useEffect(() => {
-        setUsrId(idChat);
-        setUsrName(name);
-    });
-    useEffect(() => {
-        setUsrId(idChat);
-        setUsrName(name);
-       // setSocket(io("http://" + location.host));
-    }, [usrId, username]);
-    return ([usrId, username]);
-}
 /* test socket */
 const onClick = (e: React.MouseEvent<HTMLButtonElement>, usrSocket: any) => {
     e.preventDefault();
-    usrSocket.emit('events', "msgGo");
+    usrSocket.emit('events', "msgSend");
 };
+
+const handleLeave = async (e: React.MouseEvent<HTMLButtonElement>, usrSocket: any, obj: any, navigate: any) => {
+    e.preventDefault();
+    
+    usrSocket.emit('leaveRoomChat', obj, (res:any) => {
+        console.log("leave chat : " + res);
+        navigate("/channels");
+    });
+}
 
 /* besoin context utilisateur */
 
 const MainChat = (props: any) => {
     const Element = scroll.Element;
-    //const usrSocket = io("http://" + location.host);
-   // let [usrId, username] = useConnect(props.id, props.getLocation.state.username);
-    //const [usrSocket, setSocket] = useState<Socket>(io("http://" + location.host));
     const [msgs, setMsg] = useState<null | string>(null);
-    const usrSocket = io("http://" + location.host);
     useEffect(() => {
         props.msgEnd?.current?.scrollIntoView({ behavior: "smooth" })
     });
+        /* temporaire pour le test en attendant user */
+   // const [username, setUsername] = useState<null | string>("name");
+   // const [id, setId] = useState<number>(1);
+    const usrSocket = useContext(SocketContext);
     useEffect(() => {
         //subscribeChat
+        //usrSocket("joinRoomChat", res)
+        usrSocket.emit('events', "msgSend");
         usrSocket.on("events", (res: any) => {
+            console.log("allo: " + res);
+        });
+        usrSocket.emit("joinRoomChat", {id: props.id,
+            idUser: window.navigator.userAgent,
+            username: window.navigator.userAgent,
+            name: props.getLocation.state.name
+        }, (res: string) => {
             console.log(res);
-            setMsg(new Date().toISOString());
+        });
+        usrSocket.on("joinRoomChat", (res: any) => {
+            console.log("allo: " + res);
         });
         console.log("mount");
         return (() => {
             //unsubscribeChat
             console.log("unmount");
+            //usrSocket.off("events");
             usrSocket.off("events");
+            usrSocket.off("joinRoomChat");
             //usrSocket.;
         })
-    }, []);
+    }, [props.id]);
+    const navigate = useNavigate();
     return (<>
     <p style={{color: "pink"}}>{msgs}</p>
         <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => onClick(e, usrSocket)}>Test join websocket room(channel)</button>
         <article className='containerChat'>
-            <div className="chatName"><span style={{ flex: 1 }}>{props.getLocation.state.name}</span><button className='chatLeave'>Leave</button></div>
+            <div className="chatName"><span style={{ flex: 1 }}>{props.getLocation.state.name}</span><button onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleLeave(e, usrSocket, {id: props.id, idUser: window.navigator.userAgent}, navigate)} className='chatLeave'>Leave</button></div>
             <Element name="container" className="element fullBox" id="containerElement">
                 <div><img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label></div>
                 <span className="chatBox">Contentqsdqdqsqshjsqhkjhdd</span>

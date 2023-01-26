@@ -12,7 +12,6 @@ export interface Chat {
     accessType: string,
     password: string,
     lstMsg: Array<{
-        id: number | string,
         idUser: string,
         username: string, //à enlever pour un find dans repository
         content: string

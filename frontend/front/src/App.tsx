@@ -6,10 +6,13 @@ import Chat from "./components/Chat";
 import WebSocketTestGc from './TestWebSocketGc'
 import "./App.css";
 import ErrorBoundary from "./components/ErrorBoundary";
+import {usrSocket, SocketContext} from './contexts/Socket';
 
 function App() {
+  
   return (
     <>
+      <SocketContext.Provider value={usrSocket}>
       <Router>
         <Routes>
           <Route path="/" element={<Homepage />} />
@@ -20,6 +23,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
+      </SocketContext.Provider>
     </>
   );
 }
