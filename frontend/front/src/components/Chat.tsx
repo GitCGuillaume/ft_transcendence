@@ -20,18 +20,21 @@ type lstUsr = {
         username: string,
     }>;
 }
-/* return msg list state */
-const useListMsg = (idChat: Readonly<string>) => {
-    const [msg, setMsg] = useState<null | lstMsg[]>([] as lstMsg[]);
-    //use effect getter
-    return (msg);
-}
+
 /* return user state list */
-const useListUser = () => {
-    const [usr, setUsr] = useState<null | lstUsr[]>([] as lstUsr[]);
-    const getUsers = async () => {
-    }
-    return (usr);
+const ListMsg = (props: any) => {
+    const Element = scroll.Element;
+    let i: number = 0;
+    return (
+        <Element name="container" className="element fullBox" id="containerElement">
+            {props.lstMsg &&
+            props.lstMsg.map((msg: any) => (
+                <React.Fragment key={++i}><div><img src={img} className="chatBox" /><label className="chatBox">{msg.username}</label></div>
+                <span className="chatBox">{msg.content}</span></React.Fragment>
+            ))
+        }
+        </Element>
+    )
 }
 
 /* test socket */
@@ -39,89 +42,123 @@ const onClick = (e: React.MouseEvent<HTMLButtonElement>, usrSocket: any) => {
     e.preventDefault();
     usrSocket.emit('events', "msgSend");
 };
-
-const handleLeave = async (e: React.MouseEvent<HTMLButtonElement>, usrSocket: any, obj: any, navigate: any) => {
+/* Leave chat */
+const handleLeave = async (e: React.MouseEvent<HTMLButtonElement>, usrSocket: any, obj: {id: string,
+    idUser: string,
+    username: string,
+    name: string}, navigate: any) => {
     e.preventDefault();
-    
+    console.log(obj);
     usrSocket.emit('leaveRoomChat', obj, (res:any) => {
         console.log("leave chat : " + res);
         navigate("/channels");
     });
 }
+/* Post msg */
+const handleSubmitButton = (e: React.MouseEvent<HTMLButtonElement>,
+    usrSocket: any, obj: any, ref: any, setMsg: any) =>
+{
+    e.preventDefault();
+    usrSocket.emit('sendMsg', obj);
+    setMsg("");
+    ref.current.value = "";
+}
+const handleSubmitArea = (e: React.KeyboardEvent<HTMLTextAreaElement>,
+    usrSocket: any, obj: any, ref: any, setMsg: any) =>
+{
+    if (e.key === "Enter" && e.shiftKey === false)
+    {
+        e.preventDefault();
+        usrSocket.emit('sendMsg', obj);
+        setMsg("");
+        ref.current.value = "";
+    }
+}
 
 /* besoin context utilisateur */
 
 const MainChat = (props: any) => {
-    const Element = scroll.Element;
-    const [msgs, setMsg] = useState<null | string>(null);
+    const refElem = useRef(null);
+    //const Element = scroll.Element;
     useEffect(() => {
         props.msgEnd?.current?.scrollIntoView({ behavior: "smooth" })
     });
-        /* temporaire pour le test en attendant user */
-   // const [username, setUsername] = useState<null | string>("name");
-   // const [id, setId] = useState<number>(1);
+    const [online, setOnline] = useState<boolean>(false);
+    /* temporaire pour le test en attendant user */
     const usrSocket = useContext(SocketContext);
     useEffect(() => {
         //subscribeChat
-        //usrSocket("joinRoomChat", res)
-        usrSocket.emit('events', "msgSend");
-        usrSocket.on("events", (res: any) => {
-            console.log("allo: " + res);
-        });
         usrSocket.emit("joinRoomChat", {id: props.id,
             idUser: window.navigator.userAgent,
             username: window.navigator.userAgent,
             name: props.getLocation.state.name
         }, (res: string) => {
+            setOnline(true);
             console.log(res);
         });
         usrSocket.on("joinRoomChat", (res: any) => {
             console.log("allo: " + res);
         });
+        
         console.log("mount");
         return (() => {
             //unsubscribeChat
             console.log("unmount");
-            //usrSocket.off("events");
-            usrSocket.off("events");
             usrSocket.off("joinRoomChat");
-            //usrSocket.;
+            usrSocket.emit("stopEmit", {id: props.id, name: props.getLocation.state.name}, () => {
+                setOnline(false);
+            });
         })
     }, [props.id]);
+    const [lstMsg, setLstMsg] = useState<lstMsg[]>([] as lstMsg[]);
+    useEffect(() => {
+        const ft_lst = async () => { 
+            const res = await fetch('http://' + location.host + '/api/chat/' + props.id).then(res => res.json());
+            setLstMsg(res.lstMsg);
+        }
+        ft_lst();
+        usrSocket.on("sendBackMsg", (res: any) => {
+            setLstMsg((lstMsg) => [...lstMsg, res]);
+        });
+        return (() => {
+            usrSocket.off("sendBackMsg");
+            setLstMsg([]);
+        });
+    }, [lstMsg.keys, props.id])
+    const [msg, setMsg] = useState<null | string>(null);
     const navigate = useNavigate();
     return (<>
-    <p style={{color: "pink"}}>{msgs}</p>
+    <p style={{color: "pink"}}>{msg}</p>
         <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => onClick(e, usrSocket)}>Test join websocket room(channel)</button>
         <article className='containerChat'>
-            <div className="chatName"><span style={{ flex: 1 }}>{props.getLocation.state.name}</span><button onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleLeave(e, usrSocket, {id: props.id, idUser: window.navigator.userAgent}, navigate)} className='chatLeave'>Leave</button></div>
-            <Element name="container" className="element fullBox" id="containerElement">
-                <div><img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label></div>
-                <span className="chatBox">Contentqsdqdqsqshjsqhkjhdd</span>
-                <div>
-                    <img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label>
-                </div><span className="chatBox">Contentqsdqdqsqsfkljfklsjqflklklkdskjdfkqdsjkdsjdskjsjdsklfjsdlkfjqjsdqlkfjdslkfjsdlkfjsdlfkjsdflksjlkqfjslkdjfsmfjsdlkfjsdlfjsdfksjldjfjklqsdlkjqdlkqsdjlkdqsjqlkdjqskdjqkdjqklsdjjqsdhqsjdhqjkdshhqsjksjqsjdqsdhqshqsdhsdhqksdhqshjsqhkjhdd</span>
-                <div>
-                    <img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label>
-                </div>
-                <span className="chatBox">Contentqsdqdqsqsfkljfklsjqflklklkdskjdfkqdsjkdsjdskjsjdsklfjsdlkfjqjsdqlkfjdslkfjsdlkfjsdlfkjsdflksjlkqfjslkdjfsmfjsdlkfjsdlfjsdfksjldjfjklqsdlkjqdlkqsdjlkdqsjqlkdjqskdjqkdjqklsdjjqsdhqsjdhqjkdshhqsjksjqsjdqsdhqshqsdhsdhqksdhqshjsqhkjhdd</span>
-                <div>
-                    <img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label>
-                </div>
-                <span className="chatBox">Contentqsdqdqsqsfkljfklsjqflklklkdskjdfkqdsjkdsjdskjsjdsklfjsdlkfjqjsdqlkfjdslkfjsdlkfjsdlfkjsdflksjlkqfjslkdjfsmfjsdlkfjsdlfjsdfksjldjfjklqsdlkjqdlkqsdjlkdqsjqlkdjqskdjqkdjqklsdjjqsdhqsjdhqjkdshhqsjksjqsjdqsdhqshqsdhsdhqksdhqshjsqhkjhdd</span>
-                <div><img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label></div>
-                <span className="chatBox">Contentqsdqdqsqshjsqhkjhdd</span>
-                <div><img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label></div>
-                <span className="chatBox">Contentqsdqdqsqshjsqhkjhdd</span>
-                <div><img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label></div>
-                <span className="chatBox">Contentqsdqdqsqshjsqhkjhdd</span>
-                <div><img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label></div>
-                <span className="chatBox">Contentqsdqdqsqshjsqhkjhdd</span>
-                <div><img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label></div>
-                <span className="chatBox">Contentqsdqdqsqshjsqhkjhdd</span>
-                <div><img src={img} className="chatBox" /><label className="chatBox">userNameuuuuuuuuuuuuuuuuuuuuuuuu </label></div>
-                <span ref={props.msgEnd} className="chatBox">Contentqsdqdqsqshjsqhkjhdd</span>
-            </Element>
-            <div className="sendMsg"><textarea className="chatBox" name="msg"></textarea><button className="chatBox">Go</button></div>
+            <div className="chatName"><span style={{ flex: 1 }}>{props.getLocation.state.name}</span>
+            <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleLeave(e,
+                usrSocket, {
+                    id: props.id,
+                    idUser: window.navigator.userAgent,
+                    username: window.navigator.userAgent,
+                    name: props.getLocation.state.name
+                }, navigate)}
+                className='chatLeave'>Leave</button>
+            </div>
+            <ListMsg lstMsg={lstMsg}/>
+            <div className="sendMsg">
+                <textarea ref={refElem} id="submitArea"
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMsg(e.currentTarget.value)}
+                    onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => 
+                    handleSubmitArea(e,
+                        usrSocket, {id: props.id,
+                        idUser: window.navigator.userAgent,
+                        content: msg},
+                        refElem,
+                        setMsg)}
+                    className="chatBox" name="msg"></textarea>
+                <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleSubmitButton(e,
+                    usrSocket, {id: props.id,
+                    idUser: window.navigator.userAgent,
+                    content: msg}, refElem, setMsg)}
+                className="chatBox">Go</button>
+            </div>
         </article>
         <article className='right'>
             <ListUser />

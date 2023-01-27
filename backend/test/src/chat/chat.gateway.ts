@@ -7,15 +7,26 @@ import { CreateChatDto } from './create-chat.dto';
 import { Chat, InformationChat } from './chat.interface';
 import { IsString } from 'class-validator';
 
-class SendMSg {
+class Room {
   @IsString()
   id: string;
   @IsString()
-  idUser: number | string;
+  idUser: string;
   @IsString()
   username: string;
   @IsString()
   name: string;
+}
+
+class SendMsg {
+  @IsString()
+  id: string;
+  @IsString()
+  idUser: string;
+  @IsString()
+  username: string;
+  @IsString()
+  content: string;
 }
 
 /*
@@ -89,36 +100,60 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (index === -1)
       return (undefined);
     this.publicChats[index].lstUsr.set(idUsr, username);
+    console.log("endNew");
     return (this.publicChats[index]);
   }
   /* Socket part */
   @SubscribeMessage('joinRoomChat')
-  async joinRoomChat(@ConnectedSocket() socket: Socket, @MessageBody() data: SendMSg): Promise<string> {
+  async joinRoomChat(@ConnectedSocket() socket: Readonly<Socket>, @MessageBody() data: Readonly<Room>): Promise<string> {
     console.log("joinRoomChat");
+    console.log(data);
     const newUser = this.setNewUserChannel(data.id, data.idUser, data.username);
     if (typeof newUser === "undefined")
       return ("error");
     socket.join(data.id + data.name);
-    console.log(this.getChannelById(data.id));
+    //console.log(this.getChannelById(data.id));
     return (data + "room successfully joined");
   }
   @SubscribeMessage('leaveRoomChat')
-  async leaveRoomChat(@MessageBody() data: any): Promise<string | undefined> {
+  async leaveRoomChat(@ConnectedSocket() socket: Readonly<Socket>,
+    @MessageBody() data: Readonly<Room>): Promise<string | undefined> {
+      console.log(data);
     const index = this.publicChats.findIndex(x => x.id == data.id);
+
     if (index === -1)
       return (undefined);
     const getUser = this.publicChats[index].lstUsr.get(data.idUser);
     if (typeof getUser === "undefined")
       return ("User not found");
     this.publicChats[index].lstUsr.delete(data.idUser);
-    console.log(this.getChannelById(data.id));
+    socket.leave(data.id + data.name);
+    //console.log(this.getChannelById(data.id));
     return ("User left the chat");
   }
-  @SubscribeMessage('sendMsg')
-  newPostChat(@ConnectedSocket() socket: Socket,
-    server: Server, @MessageBody() data: SendMSg){
-      console.log(data);
+  @SubscribeMessage('stopEmit')
+  async stopEmit(@ConnectedSocket() socket: Readonly<Socket>,
+    @MessageBody() data: Readonly<any>) {
+      socket.leave(data.id + data.name);
     }
+  /* est-ce que je peux chercher l'user enregistré dans le gateway depuis le middleware? */
+  @SubscribeMessage('sendMsg')
+  newPostChat(@MessageBody() data: Readonly<SendMsg>){
+    console.log(data);
+    const chat: Chat[] = this.publicChats;
+    const index = chat.findIndex(x => x.id == data.id);
+    if (index === -1)
+      return (undefined);
+    const getUsername = chat[index].lstUsr.get(data.idUser);
+    if (typeof getUsername === "undefined")
+      return ("User not found");
+    //if typeChat === public
+    chat[index].lstMsg.push({idUser: data.idUser, username: getUsername, content: data.content});
+    //else if (typechat === private)
+    console.log(chat[index].id + chat[index].name);
+    const length = chat[index].lstMsg.length;
+    this.server.to(chat[index].id + chat[index].name).emit("sendBackMsg", chat[index].lstMsg[length - 1]);
+  }
 
   /* Tests ws */
   handleConnection(client: Socket) {

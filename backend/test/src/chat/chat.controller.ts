@@ -96,10 +96,13 @@ export class ChatController {
     //@Guard() IL FAUT UN AUTHGUARD
     /* Remplacer id et username par un actuel user */
     @Get(':id')
-    async getChannel(@Param('id') id: Readonly<string>,
-        @Query('iduser') idUser: Readonly<number>,
-        @Query('username') username: Readonly<string>): Promise<any> {
-        const channel = this.chatGateway.setNewUserChannel(id, idUser, username);
+    async getChannel(@Param('id') id: Readonly<string>) {
+        //@Query('iduser') idUser: Readonly<number>,
+        //@Query('username') username: Readonly<string>): Promise<any> {
+        //const channel = this.chatGateway.setNewUserChannel(id, idUser, username);
+        //if (typeof channel === "undefined")
+        //    return (undefined);
+        const channel = this.chatGateway.getChannelById(id);
         if (typeof channel === "undefined")
             return (undefined);
         const convertChannel = {
