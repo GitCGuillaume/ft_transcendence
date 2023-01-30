@@ -6,6 +6,7 @@ import { Socket, Server } from 'socket.io';
 import { CreateChatDto } from './create-chat.dto';
 import { Chat, InformationChat } from './chat.interface';
 import { IsString } from 'class-validator';
+import * as bcrypt from 'bcrypt';
 
 class Room {
   @IsString()
@@ -16,6 +17,8 @@ class Room {
   username: string;
   @IsString()
   name: string;
+  @IsString()
+  psw: string
 }
 
 class SendMsg {
@@ -68,7 +71,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
   getChannelById(id: string): undefined | Chat {
     const elem: number = this.publicChats.findIndex(x => x.id == id)
-
     return (this.publicChats[elem]);
   }
   getChannelByName(name: string): undefined | Chat {
@@ -87,33 +89,49 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     };
     this.publicChats.push(newChat);
   }
-  createPrivate(chat: Chat, id: string): Chat {
+  createPrivate(chat: CreateChatDto, id: string): Chat {
     chat.id = id;
-    //this.privateChats.find(this.pri);
-    this.privateChats.push(chat);
+    //find id dans privateChat
+    //si undefined alors id pas trouvé ou liste vide?
+    let newChat: Chat = {
+      id: chat.id, name: chat.name, owner: chat.owner,
+      accessType: chat.accessType, password: chat.password,
+      lstMsg: chat.lstMsg,
+      lstUsr: chat.lstUsr, lstMute: chat.lstMute,
+      lstBan: chat.lstBan
+    };
+    this.privateChats.push(newChat);
+    /* droit retourner le chat créé */
     return (this.privateChats[this.privateChats.length - 1]);
   }
   setNewUserChannel(id: Readonly<string>,
-    idUsr: Readonly<number | string>, username: Readonly<string>): undefined | Chat {
+    idUsr: Readonly<number | string>,
+    username: Readonly<string>,
+    psw: Readonly<string>): undefined | Chat {
     console.log("setNewUserChannel");
     const index = this.publicChats.findIndex(x => x.id == id);
     if (index === -1)
       return (undefined);
+    if (this.publicChats[index].password != '')
+    {
+      const comp = bcrypt.compareSync(psw, this.publicChats[index].password);
+      if (comp === false)
+        return (undefined)
+    }
     this.publicChats[index].lstUsr.set(idUsr, username);
     console.log("endNew");
     return (this.publicChats[index]);
   }
   /* Socket part */
   @SubscribeMessage('joinRoomChat')
-  async joinRoomChat(@ConnectedSocket() socket: Readonly<Socket>, @MessageBody() data: Readonly<Room>): Promise<string> {
+  async joinRoomChat(@ConnectedSocket() socket: Readonly<Socket>, @MessageBody() data: Readonly<Room>): Promise<boolean> {
     console.log("joinRoomChat");
     console.log(data);
-    const newUser = this.setNewUserChannel(data.id, data.idUser, data.username);
+    const newUser = this.setNewUserChannel(data.id, data.idUser, data.username, data.psw);
     if (typeof newUser === "undefined")
-      return ("error");
+      return (false);
     socket.join(data.id + data.name);
-    //console.log(this.getChannelById(data.id));
-    return (data + "room successfully joined");
+    return (true);
   }
   @SubscribeMessage('leaveRoomChat')
   async leaveRoomChat(@ConnectedSocket() socket: Readonly<Socket>,

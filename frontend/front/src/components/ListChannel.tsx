@@ -9,9 +9,17 @@ type State = {
         owner: string,
         accessType: number,
     }>,
+    listChannelPrivate: Array<{
+        id: number | string,
+        name: string,
+        owner: string,
+        accessType: number,
+    }>,
     channelName: string,
+    privateChannelName: string,
     rad: string,
     password: string,
+    passwordPrivate: string,
     hasErrorPsw: boolean
     hasErrorExist: boolean
 }
@@ -42,9 +50,12 @@ class ListChannel extends React.Component<{}, State> {
         super(props);
         this.state = {
             listChannel: [],
+            listChannelPrivate: [],
             channelName: '',
+            privateChannelName: '',
             rad: '0',
             password: '',
+            passwordPrivate: '',
             hasErrorPsw: false,
             hasErrorExist: false
         }
@@ -74,6 +85,7 @@ class ListChannel extends React.Component<{}, State> {
     onChange = (e: ChangeEvent<HTMLInputElement>): void => {
         const name = e.currentTarget.name;
         const value = e.currentTarget.value;
+        console.log(e.currentTarget);
         this.setState((prevState => (
             { ...prevState, [name]: value }
         )));
@@ -132,7 +144,7 @@ class ListChannel extends React.Component<{}, State> {
             });
         }
     }
-    PrintList = (): JSX.Element => {
+    PrintListPublic = (): JSX.Element => {
         let i: number = 0;
         const TypeAccess = (props: Props): JSX.Element => {
             const access: Readonly<number> = props.access;
@@ -151,6 +163,17 @@ class ListChannel extends React.Component<{}, State> {
             }
         </tbody>)
     }
+    PrintListPrivate = (): JSX.Element => {
+        let i: number = 0;
+        const TypeAccess = (props: Props): JSX.Element => {
+            const access: Readonly<number> = props.access;
+            if (access == 1)
+                return (<>Private</>)
+            return (<>Password required</>)
+        };
+        return (<></>);
+    }
+
     render(): JSX.Element {
         return (<section className='containerChannel'>
             <h1>List channels + (affichage liste privée à faire + persist dtb)</h1>
@@ -158,20 +181,40 @@ class ListChannel extends React.Component<{}, State> {
                 <table>
                     <thead>
                         <tr>
-                            <th>Channel name</th><th>Owner</th><th>Access type</th>
+                            <th>Public Channel name</th><th>Owner</th><th>Access type</th>
                         </tr>
                     </thead>
-                    <this.PrintList />
+                    <this.PrintListPublic />
+                </table>
+                <table style={{margin: "auto auto auto 20px"}}>
+                    <thead>
+                        <tr>
+                            <th>Private Channel name</th><th>Owner</th><th>Access type</th>
+                        </tr>
+                    </thead>
+                    <this.PrintListPublic />
                 </table>
             </article>
             <article className='bottom'>
                 <button onClick={this.onClick}>Update</button>
                 <form onSubmit={this.onSubmit}>
                     <input type="text" onChange={this.onChange} placeholder='Enter channel name' name="channelName" />
-                    <input type="radio" onChange={this.onChange} name="rad" value="0" /><label>Public</label>
-                    <input type="radio" onChange={this.onChange} name="rad" value="1" /><label>Private</label>
+                    <label><input type="radio" onChange={this.onChange} name="rad" value="0" checked={this.state.rad === "0"} />Public</label>
+                    <label><input type="radio" onChange={this.onChange} name="rad" value="1" checked={this.state.rad === "1"} />Private</label>
                     <input type="text" onChange={this.onChange} placeholder='Password' name="password" />
                     <input type="submit" onChange={this.onChange} value="Add Channel" />
+                </form>
+                <form>
+                    <label>Enter a private ID
+                        <input type="text" onChange={this.onChange}
+                            placeholder='Enter channel name'
+                            name="privateChannelName" />
+                    </label>
+                    <label>
+                        <input type="text" onChange={this.onChange}
+                        placeholder='Password' name="passwordPrivate" />
+                    </label>
+                    <input type="submit" onChange={this.onChange} value="Join private channel" />
                 </form>
                 <ErrorSubmit hasErrorPsw={this.state.hasErrorPsw} hasErrorExist={this.state.hasErrorExist} />
             </article>

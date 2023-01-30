@@ -66,6 +66,7 @@ export class ChatController {
 
     /* Post part */
     /* Create new public chat and return them by Name */
+    /* admin pas fait */
     //@Guard() IL FAUT UN AUTHGUARD
     @Post('new-public')
     async postNewPublicChat(@Body() chat: CreateChatDto): Promise<InformationChat[] | string[]> {
@@ -93,24 +94,61 @@ export class ChatController {
         //console.log(this.chatGateway.getAllPublicByName());
         return (this.chatGateway.getAllPublicByName());
     }
+
+    /* Create new private chat and return them by Name */
+    /* admin pas fait */
+    //@Guard() IL FAUT UN AUTHGUARD
+    @Post('new-private')
+    async postNewPrivateChat(@Body() chat: CreateChatDto): Promise<InformationChat[] | string[]> {
+        const str: string = bcrypt.hashSync(chat.name, 10);
+        const channel: undefined | Chat = this.chatGateway.getChannelByName(chat.name);
+        let err: string[] = [];
+    
+        if (chat.accessType != '1')
+            throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+        if (chat.name == chat.password)
+            err.push("hasErrorPsw");
+        if (typeof channel !== "undefined")
+            err.push("hasErrorExist");
+        if (err.length > 0)
+            return (err);
+        
+        /*
+            randomize nom
+
+            let salt = 10; //DOIT ETRE UTILISE DEPUIS .env
+            if (chat.password != '') {
+                chat.accessType = '2';
+                chat.password = bcrypt.hashSync(chat.password, salt);
+            }
+            chat.lstUsr = new Map<string | number, string>;
+            chat.lstMute = new Map<string, number>; //([[chat.setMute.key, chat.setMute.value]]);
+            chat.lstBan = new Map<string, number>; //([[chat.setBan.key, chat.setBan.value]]);
+            appeler createPrivate + dedans vérifier si id existe déjà
+        */
+       /* droit retourner le chat crée pour y accéder depuis son id */
+        return (this.chatGateway.getAllPrivate());
+    }
+
     //@Guard() IL FAUT UN AUTHGUARD
     /* Remplacer id et username par un actuel user */
     @Get(':id')
     async getChannel(@Param('id') id: Readonly<string>) {
-        //@Query('iduser') idUser: Readonly<number>,
-        //@Query('username') username: Readonly<string>): Promise<any> {
-        //const channel = this.chatGateway.setNewUserChannel(id, idUser, username);
-        //if (typeof channel === "undefined")
-        //    return (undefined);
         const channel = this.chatGateway.getChannelById(id);
+        let authorized = true;
         if (typeof channel === "undefined")
             return (undefined);
+        let arrayStart: number = channel.lstMsg.length - 5;
+        let arrayEnd: number = channel.lstMsg.length;
+        if (arrayStart < 0)
+            arrayStart = 0;
         const convertChannel = {
             id: channel.id,
             name: channel.name,
             owner: channel.owner,
             accessType: channel.accessType,
-            lstMsg: channel.lstMsg,
+            lstMsg: channel.lstMsg.slice(arrayStart, arrayEnd),
+            authorized: authorized
             //lstUsr: Object.fromEntries(channel.lstUsr),
             /*,
             lstMute: Object.fromEntries(channel.lstMute),
@@ -118,21 +156,7 @@ export class ChatController {
         };
         return (convertChannel);
     }
-    /* Create new private chat and return them by Name */
-    //@Guard() IL FAUT UN AUTHGUARD
-    @Post('new-private')
-    async postNewPrivateChat(@Body() chat: CreateChatDtoTwo): Promise<Chat[]> {
-        const str: string = bcrypt.hashSync(chat.name, 10);
 
-        if (chat.accessType != '1')
-            throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-        if (chat.password != '')
-            chat.accessType = '1';
-        //this.chatGateway.createPrivate(chat, str)
-        //create private room
-        /*pas fou de retourner le psw, à changer*/
-        return (this.chatGateway.getAllPrivate());
-    }
     //@Guard() IL FAUT UN AUTHGUARD
     @Post('valid-paswd')
     async passwordIsValid(@Body() psw: PswChat): Promise<boolean> {
