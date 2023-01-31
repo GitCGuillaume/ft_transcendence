@@ -1,5 +1,5 @@
-import React, { ChangeEvent, FormEvent, MouseEvent } from 'react';
-import { Link, Outlet } from "react-router-dom";
+import React, { ChangeEvent, FormEvent, MouseEvent, useState } from 'react';
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import "../css/channel.css"
 
 type State = {
@@ -20,8 +20,9 @@ type State = {
     rad: string,
     password: string,
     passwordPrivate: string,
-    hasErrorPsw: boolean
-    hasErrorExist: boolean
+    hasErrorPsw: boolean,
+    hasErrorExist: boolean,
+    redirect: boolean
 }
 
 type Props = {
@@ -45,6 +46,28 @@ const ErrorSubmit = (props: any) => {
     return (<></>);
 }
 
+const onSubmitJoin = async (e:FormEvent<HTMLFormElement>, name: string | null, navigate: any) => {
+    e.preventDefault();
+    navigate({ pathname: "/channels/" + name }, { state: { name: name, username: "" }});
+}
+
+const OpenPrivateChat = (props: any) => {
+    const navigate = useNavigate();
+    const [name, setName] = useState<string | null>(null);
+
+    return (<form onSubmit={(e:FormEvent<HTMLFormElement>) => onSubmitJoin(e, name, navigate)}>
+        <label>Enter a private ID to join a channel
+            <input type="text"
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setName(e.currentTarget.value)}
+                placeholder='Enter channel name'
+                name="privateChannelName"
+                />
+        </label>
+        <input type="submit" value="Join private channel" />
+    </form>);
+}
+
 class ListChannel extends React.Component<{}, State> {
     constructor(props: any) {
         super(props);
@@ -57,7 +80,8 @@ class ListChannel extends React.Component<{}, State> {
             password: '',
             passwordPrivate: '',
             hasErrorPsw: false,
-            hasErrorExist: false
+            hasErrorExist: false,
+            redirect: false
         }
         this.onClick = this.onClick.bind(this);
         this.onChange = this.onChange.bind(this);
@@ -90,6 +114,7 @@ class ListChannel extends React.Component<{}, State> {
             { ...prevState, [name]: value }
         )));
     };
+
     onSubmit = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
         let elem = new Map<string, number>;
@@ -100,7 +125,7 @@ class ListChannel extends React.Component<{}, State> {
                 method: 'post',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: '0',
+                    id: '0', //m'en souviens pas
                     name: this.state.channelName,
                     owner: 0,
                     accessType: this.state.rad,
@@ -131,16 +156,28 @@ class ListChannel extends React.Component<{}, State> {
                 method: 'post',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: '',
+                    id: '0', //idUser
                     name: this.state.channelName,
                     owner: 0,
                     accessType: this.state.rad,
                     password: this.state.password,
+                    lstMsg: [],
+                    lstUsr: {},
+                    lstMute: {},
+                    lstBan: {}
                 })
             }).then(res => res.json()).then(res => {
-                this.setState({
-                    listChannel: [...this.state.listChannel, res]
-                });
+                console.log(res);
+                if (res.length === 1
+                    && (res[0] === "hasErrorPsw" || res[0] === "hasErrorExist")) {
+                    if (res[0] === "hasErrorPsw")
+                        this.setState({ hasErrorPsw: true, hasErrorExist: false });
+                    if (res[0] === "hasErrorExist")
+                        this.setState({ hasErrorPsw: false, hasErrorExist: true });
+                } else if (res.length === 2 && res[0] === "hasErrorPsw" && res[1] === "hasErrorExist")
+                    this.setState({ hasErrorPsw: true, hasErrorExist: true });
+                else
+                    this.setState({ listChannelPrivate: res, hasErrorPsw: false, hasErrorExist: false });
             });
         }
     }
@@ -171,9 +208,17 @@ class ListChannel extends React.Component<{}, State> {
                 return (<>Private</>)
             return (<>Password required</>)
         };
-        return (<></>);
+        return (<tbody>
+            {this.state.listChannelPrivate &&
+                this.state.listChannelPrivate.map((chan) => (
+                    <tr key={++i}>
+                        <td><Link to={{ pathname: "/channels/" + chan.id }} state={{ name: chan.name, username: "" }}>{chan.name}</Link></td><td>{chan.owner}</td><td><TypeAccess access={chan.accessType} /></td>
+                    </tr>
+                ))
+            }
+        </tbody>)
     }
-
+    
     render(): JSX.Element {
         return (<section className='containerChannel'>
             <h1>List channels + (affichage liste privée à faire + persist dtb)</h1>
@@ -192,7 +237,7 @@ class ListChannel extends React.Component<{}, State> {
                             <th>Private Channel name</th><th>Owner</th><th>Access type</th>
                         </tr>
                     </thead>
-                    <this.PrintListPublic />
+                    <this.PrintListPrivate />
                 </table>
             </article>
             <article className='bottom'>
@@ -204,18 +249,7 @@ class ListChannel extends React.Component<{}, State> {
                     <input type="text" onChange={this.onChange} placeholder='Password' name="password" />
                     <input type="submit" onChange={this.onChange} value="Add Channel" />
                 </form>
-                <form>
-                    <label>Enter a private ID
-                        <input type="text" onChange={this.onChange}
-                            placeholder='Enter channel name'
-                            name="privateChannelName" />
-                    </label>
-                    <label>
-                        <input type="text" onChange={this.onChange}
-                        placeholder='Password' name="passwordPrivate" />
-                    </label>
-                    <input type="submit" onChange={this.onChange} value="Join private channel" />
-                </form>
+                <OpenPrivateChat/>
                 <ErrorSubmit hasErrorPsw={this.state.hasErrorPsw} hasErrorExist={this.state.hasErrorExist} />
             </article>
             <Outlet />

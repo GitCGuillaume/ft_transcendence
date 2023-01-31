@@ -48,7 +48,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @WebSocketServer() server: Server;
   afterInit(server: Server) { }
   private readonly publicChats: Chat[] = [];
-  private readonly privateChats: Chat[] = [];
+  //private readonly privateChats: Chat[] = [];
 
   getAllPublic(): Chat[] {
     return this.publicChats;
@@ -66,9 +66,23 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
     return arrName;
   }
-  getAllPrivate(): Chat[] {
+
+  /*getAllPrivateByName(): InformationChat[] {
+    let arrName: InformationChat[] = [];
+
+    const size: number = this.privateChats.length;
+
+    for (let i: number = 0; i < size; ++i) {
+      arrName[i] = {
+        id: this.privateChats[i].id, name: this.privateChats[i].name,
+        owner: this.privateChats[i].owner, accessType: this.privateChats[i].accessType
+      };
+    }
+    return arrName;
+  }*/
+  /*getAllPrivate(): Chat[] {
     return this.privateChats;
-  }
+  }*/
   getChannelById(id: string): undefined | Chat {
     const elem: number = this.publicChats.findIndex(x => x.id == id)
     return (this.publicChats[elem]);
@@ -78,6 +92,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     return (this.publicChats[elem]);
   }
+  /*getChannelPrivateByName(name: string): undefined | Chat {
+    const elem: number = this.privateChats.findIndex(x => x.name == name)
+
+    return (this.privateChats[elem]);
+  }*/
   createPublic(chat: CreateChatDto, id: string) {
     chat.id = id;
     let newChat: Chat = {
@@ -89,7 +108,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     };
     this.publicChats.push(newChat);
   }
-  createPrivate(chat: CreateChatDto, id: string): Chat {
+  /*createPrivate(chat: CreateChatDto, id: string): string {
     chat.id = id;
     //find id dans privateChat
     //si undefined alors id pas trouvé ou liste vide?
@@ -101,9 +120,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       lstBan: chat.lstBan
     };
     this.privateChats.push(newChat);
-    /* droit retourner le chat créé */
-    return (this.privateChats[this.privateChats.length - 1]);
-  }
+   */ /* droit retourner le chat créé */
+   // return (newChat.id);
+ // }
   setNewUserChannel(id: Readonly<string>,
     idUsr: Readonly<number | string>,
     username: Readonly<string>,
@@ -129,8 +148,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     console.log(data);
     const newUser = this.setNewUserChannel(data.id, data.idUser, data.username, data.psw);
     if (typeof newUser === "undefined")
+    {
+      console.log("join room undefined");
       return (false);
-    socket.join(data.id + data.name);
+    
+    }const getName = this.getChannelById(data.id)?.name;
+    console.log("name: " + getName);
+    console.log("data.id: " + data.id + " name: " + getName);
+    socket.join(data.id + getName);
     return (true);
   }
   @SubscribeMessage('leaveRoomChat')
@@ -145,14 +170,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (typeof getUser === "undefined")
       return ("User not found");
     this.publicChats[index].lstUsr.delete(data.idUser);
-    socket.leave(data.id + data.name);
+    const getName = this.getChannelById(data.id)?.name;
+    console.log("data.id: " + data.id + " name: " + getName);
+    socket.leave(data.id + getName);
     //console.log(this.getChannelById(data.id));
     return ("User left the chat");
   }
   @SubscribeMessage('stopEmit')
   async stopEmit(@ConnectedSocket() socket: Readonly<Socket>,
     @MessageBody() data: Readonly<any>) {
-      socket.leave(data.id + data.name);
+      const getName = this.getChannelById(data.id)?.name;
+      socket.leave(data.id + getName);
     }
   /* est-ce que je peux chercher l'user enregistré dans le gateway depuis le middleware? */
   @SubscribeMessage('sendMsg')
@@ -166,10 +194,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if (typeof getUsername === "undefined")
       return ("User not found");
     //if typeChat === public
+    console.log("index: " + index);
     chat[index].lstMsg.push({idUser: data.idUser, username: getUsername, content: data.content});
     //else if (typechat === private)
     console.log(chat[index].id + chat[index].name);
     const length = chat[index].lstMsg.length;
+    console.log("chatId: " + chat[index].id + " chatName: " + chat[index].name);
     this.server.to(chat[index].id + chat[index].name).emit("sendBackMsg", chat[index].lstMsg[length - 1]);
   }
 

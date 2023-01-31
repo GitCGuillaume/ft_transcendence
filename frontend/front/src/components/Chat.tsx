@@ -48,8 +48,7 @@ const ListMsg = (props: any) => {
 /* Leave chat */
 const handleLeave = async (e: React.MouseEvent<HTMLButtonElement>, usrSocket: any, obj: {id: string,
     idUser: string,
-    username: string,
-    name: string}, navigate: any) => {
+    username: string,}, navigate: any) => {
     e.preventDefault();
     console.log(obj);
     usrSocket.emit('leaveRoomChat', obj, (res:any) => {
@@ -90,7 +89,7 @@ const MainChat = (props: any) => {
         usrSocket.emit("joinRoomChat", {id: props.id,
             idUser: window.navigator.userAgent,
             username: window.navigator.userAgent,
-            name: props.getLocation.state.name,
+            //name: props.getLocation.state.name,
             psw: props.psw
         }, (res: boolean) => {
             if (res === true)
@@ -102,7 +101,7 @@ const MainChat = (props: any) => {
         return (() => {
             //unsubscribeChat
             console.log("unmount");
-            usrSocket.emit("stopEmit", {id: props.id, name: props.getLocation.state.name}, () => {
+            usrSocket.emit("stopEmit", {id: props.id /*, name: props.getLocation.state.name*/}, () => {
                 setOnline(false);
             });
         })
@@ -111,13 +110,18 @@ const MainChat = (props: any) => {
     useEffect(() => {
         const ft_lst = async () => { 
             const res = await fetch('http://' + location.host + '/api/chat/' + props.id).then(res => res.json());
-            setLstMsg(res.lstMsg);
+            if (typeof res.lstMsg != "undefined")
+                setLstMsg(res.lstMsg);
+            console.log("load...");
         }
         ft_lst();
+        console.log("liste mount");
         usrSocket.on("sendBackMsg", (res: any) => {
+            console.log("msg");
             setLstMsg((lstMsg) => [...lstMsg, res]);
         });
         return (() => {
+            console.log("liste unmount");
             usrSocket.off("sendBackMsg");
             setLstMsg([]);
         });
@@ -138,7 +142,7 @@ const MainChat = (props: any) => {
                     id: props.id,
                     idUser: window.navigator.userAgent,
                     username: window.navigator.userAgent,
-                    name: props.getLocation.state.name
+                    /*name: props.getLocation.state.name*/
                 }, navigate)}
                 className='chatLeave'>Leave</button>
             </div>
@@ -225,24 +229,22 @@ const PasswordBox = (props: Readonly<any>): JSX.Element => {
             <DisplayErrorPasswordBox error={error} />
         </article>);
     }
-    return (<MainChat id={props.id} msgEnd={props.msgEnd} getLocation={props.getLocation} psw={value} />);
+    return (<MainChat id={props.id} getLocation={props.getLocation} psw={value} />);
 }
 
 const BlockChat = (props: any) => {
     if (props.hasPsw !== undefined) {
         if (props.hasPsw == false)
-            return (<MainChat id={props.id} msgEnd={props.msgEnd} getLocation={props.getLocation} psw="" />);
+            return (<MainChat id={props.id} getLocation={props.getLocation} psw="" />);
         else
             return (<PasswordBox id={props.id} hasPsw={props.hasPsw}
-                msgEnd={props.msgEnd} getLocation={props.getLocation} />);
+                getLocation={props.getLocation} />);
     }
     return (<></>);
 }
 
 const Chat = () => {
-
     const getLocation = useLocation();
-    const msgEnd = useRef<null | HTMLSpanElement>() as MutableRefObject<HTMLSpanElement>;
     const [psw, setLoadPsw] = useState<boolean | undefined>(undefined);
     const id = useParams().id as string;
     const hasPass: Promise<boolean> = hasPassword(id);
@@ -250,7 +252,7 @@ const Chat = () => {
     hasPass.then(res => {
         setLoadPsw(res);
     })
-    return (<BlockChat id={id} msgEnd={msgEnd} getLocation={getLocation}
+    return (<BlockChat id={id} getLocation={getLocation}
         hasPsw={psw} />);
 }
 

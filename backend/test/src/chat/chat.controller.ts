@@ -7,40 +7,6 @@ import { IsString, IsInt, IsArray, ValidateNested, IsObject, IsDefined, IsNumber
 import { CreateChatDto } from './create-chat.dto';
 import { PswChat } from './psw-chat.dto'
 
-class CreateChatDtoTwo {
-    @IsString()
-    id: string;
-    @IsString()
-    name: string;
-    @IsInt()
-    owner: number;
-    @IsString()
-    accessType: string;
-    @IsString()
-    password: string;
-    @IsArray()
-    lstMsg: Array<{
-        id: number | string,
-        username: string,
-        content: string,
-        avatarUrl: string,
-    }>;
-    @IsArray()
-    lstUsr: Array<{
-        id: number | string,
-        username: string,
-        avatarUrl: string,
-    }>;
-    lstMute: Array<{
-        id: number | string,
-        time: number //parse millisecondes depuis 1970
-    }>
-    lstBan: Array<{
-        id: number | string,
-        time: number //parse millisecondes depuis 1970
-    }>
-}
-
 @Controller('chat')
 export class ChatController {
     constructor(private chatGateway: ChatGateway) { }
@@ -100,7 +66,6 @@ export class ChatController {
     //@Guard() IL FAUT UN AUTHGUARD
     @Post('new-private')
     async postNewPrivateChat(@Body() chat: CreateChatDto): Promise<InformationChat[] | string[]> {
-        const str: string = bcrypt.hashSync(chat.name, 10);
         const channel: undefined | Chat = this.chatGateway.getChannelByName(chat.name);
         let err: string[] = [];
     
@@ -112,22 +77,22 @@ export class ChatController {
             err.push("hasErrorExist");
         if (err.length > 0)
             return (err);
-        
+        const id:string = "01as";
+        let salt = 10;
+        if (chat.password != '') {
+            chat.accessType = '2';
+            chat.password = bcrypt.hashSync(chat.password, salt);
+        }
+        chat.lstUsr = new Map<string | number, string>;
+        chat.lstMute = new Map<string, number>; //([[chat.setMute.key, chat.setMute.value]]);
+        chat.lstBan = new Map<string, number>; //([[chat.setBan.key, chat.setBan.value]]);
         /*
-            randomize nom
-
-            let salt = 10; //DOIT ETRE UTILISE DEPUIS .env
-            if (chat.password != '') {
-                chat.accessType = '2';
-                chat.password = bcrypt.hashSync(chat.password, salt);
-            }
-            chat.lstUsr = new Map<string | number, string>;
-            chat.lstMute = new Map<string, number>; //([[chat.setMute.key, chat.setMute.value]]);
-            chat.lstBan = new Map<string, number>; //([[chat.setBan.key, chat.setBan.value]]);
             appeler createPrivate + dedans vérifier si id existe déjà
         */
-       /* droit retourner le chat crée pour y accéder depuis son id */
-        return (this.chatGateway.getAllPrivate());
+        this.chatGateway.createPublic(chat, id);
+       /*retourner getAllPrivateByUser*/
+       
+       return (this.chatGateway.getAllPublicByName());
     }
 
     //@Guard() IL FAUT UN AUTHGUARD
@@ -137,7 +102,7 @@ export class ChatController {
         const channel = this.chatGateway.getChannelById(id);
         let authorized = true;
         if (typeof channel === "undefined")
-            return (undefined);
+            return ({});
         let arrayStart: number = channel.lstMsg.length - 5;
         let arrayEnd: number = channel.lstMsg.length;
         if (arrayStart < 0)
