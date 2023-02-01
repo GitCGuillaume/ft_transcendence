@@ -142,7 +142,7 @@ class ListChannel extends React.Component<{}, State> {
                 body: JSON.stringify({
                     id: '0', //m'en souviens pas
                     name: this.state.channelName,
-                    owner: 0,
+                    owner: { idUser: window.navigator.userAgent, username: window.navigator.userAgent },
                     accessType: this.state.rad,
                     password: this.state.password,
                     lstMsg: [],
@@ -176,7 +176,7 @@ class ListChannel extends React.Component<{}, State> {
                 body: JSON.stringify({
                     id: '0', //idUser
                     name: this.state.channelName,
-                    owner: 0,
+                    owner: { idUser: window.navigator.userAgent, username: window.navigator.userAgent },
                     accessType: this.state.rad,
                     password: this.state.password,
                     lstMsg: [],

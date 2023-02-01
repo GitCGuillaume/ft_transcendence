@@ -45,12 +45,6 @@ const filterAccessPublic = (elem: Chat) => {
   return (false);
 }
 
-const filterAccessPrivate = (elem: Chat) => {
-  if (elem.accessType === "2" || elem.accessType === "3")
-    return (true);
-  return (false);
-}
-
 @WebSocketGateway({
   cors: {
     origin: "http://127.0.0.1:4000", credential: true
@@ -65,8 +59,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     let arr: Chat[] = this.publicChats.filter(filterAccessPublic);
     return arr;
   }
-  getAllPrivate(): Chat[] {
-    let arr: Chat[] = this.publicChats.filter(filterAccessPrivate);
+  getAllPrivate(id: string): Chat[] {
+    let arr: Chat[] = this.publicChats.filter((elem) => {
+      console.log("id: " + id);
+      console.log(elem.lstUsr.get(id));
+      if ((elem.accessType === "2" || elem.accessType === "3") && elem.lstUsr.get(id) != undefined)
+        return (true);
+      return (false);
+    });
     return arr;
   }
   getAllPublicByName(): InformationChat[] {
@@ -116,7 +116,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   createPublic(chat: CreateChatDto, id: string): InformationChat {
     chat.id = id;
     let newChat: Chat = {
-      id: chat.id, name: chat.name, owner: chat.owner,
+      id: chat.id, name: chat.name, owner: chat.owner.username,
       accessType: chat.accessType, password: chat.password,
       lstMsg: chat.lstMsg,
       lstUsr: chat.lstUsr, lstMute: chat.lstMute,

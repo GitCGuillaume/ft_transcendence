@@ -19,13 +19,25 @@ import { Type } from 'class-transformer';
  @Type(() => Pair)
  setBan: Pair;*/
 
+class Owner {
+    @IsString()
+    idUser: string;
+    @IsString()
+    username: string
+}
+
 export class CreateChatDto {
     @IsString()
     id: string;
     @IsString()
     name: string;
-    @IsInt()
-    owner: number;
+    //@IsInt()
+    //owner: number;
+    @IsObject()
+    @IsDefined()
+    @ValidateNested()
+    @Type(() => Owner)
+    owner: Owner;
     @IsString()
     accessType: string;
     @IsString()

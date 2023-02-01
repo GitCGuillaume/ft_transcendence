@@ -13,11 +13,13 @@ export class ChatController {
     //@Guard() IL FAUT UN AUTHGUARD
     @Get('public')
     async getAllPublic(): Promise<Chat[]> {
+        console.log(this.chatGateway.getAllPublic());
         return (this.chatGateway.getAllPublic());
     }
     @Get('private')
-    async getAllPrivate(): Promise<Chat[]> {
-        return (this.chatGateway.getAllPrivate());
+    async getAllPrivate(@Query('id') id: string): Promise<Chat[]> {
+        console.log(this.chatGateway.getAllPrivate("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0"));
+        return (this.chatGateway.getAllPrivate("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0"));
     }
     /*
         id = id channel
@@ -55,10 +57,12 @@ export class ChatController {
         chat.lstUsr = new Map<string | number, string>;
         chat.lstMute = new Map<string, number>; //([[chat.setMute.key, chat.setMute.value]]);
         chat.lstBan = new Map<string, number>; //([[chat.setBan.key, chat.setBan.value]]);
+        chat.lstUsr.set(chat.owner.idUser, chat.owner.username);
         if (chat.password != '') {
             chat.accessType = '1';
             chat.password = bcrypt.hashSync(chat.password, salt);
         }
+        console.log(chat);
         return (this.chatGateway.createPublic(chat, len));
         //console.log(this.chatGateway.getAllPublicByName());
         //return (this.chatGateway.getAllPublicByName());
@@ -92,6 +96,7 @@ export class ChatController {
         chat.lstUsr = new Map<string | number, string>;
         chat.lstMute = new Map<string, number>; //([[chat.setMute.key, chat.setMute.value]]);
         chat.lstBan = new Map<string, number>; //([[chat.setBan.key, chat.setBan.value]]);
+        chat.lstUsr.set(chat.owner.idUser, chat.owner.username);
         /*
             appeler createPrivate + dedans vérifier si id existe déjà
         */
