@@ -1,26 +1,29 @@
 import { Controller, Request, Req, Query, Param, Get, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
-/*import { ChatService } from './chat.service';*/
 import { ChatGateway } from './chat.gateway';
 import { Chat, InformationChat } from './chat.interface';
-import * as bcrypt from 'bcrypt';
-import { IsString, IsInt, IsArray, ValidateNested, IsObject, IsDefined, IsNumber } from 'class-validator';
 import { CreateChatDto } from './create-chat.dto';
 import { PswChat } from './psw-chat.dto'
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 
 @Controller('chat')
 export class ChatController {
     constructor(private chatGateway: ChatGateway) { }
     /* Get part */
     //@Guard() IL FAUT UN AUTHGUARD
-    @Get('list')
+    @Get('public')
     async getAllPublic(): Promise<Chat[]> {
         return (this.chatGateway.getAllPublic());
+    }
+    @Get('private')
+    async getAllPrivate(): Promise<Chat[]> {
+        return (this.chatGateway.getAllPrivate());
     }
     /*
         id = id channel
         name = channel's name
     */
-   //@Guard() IL FAUT UN AUTHGUARD
+    //@Guard() IL FAUT UN AUTHGUARD
     @Get('has-paswd/:id')
     getHasPaswd(@Param('id') id: Readonly<string>): boolean {
         const channel: undefined | Chat = this.chatGateway.getChannelById(id)
@@ -35,7 +38,7 @@ export class ChatController {
     /* admin pas fait */
     //@Guard() IL FAUT UN AUTHGUARD
     @Post('new-public')
-    async postNewPublicChat(@Body() chat: CreateChatDto): Promise<InformationChat[] | string[]> {
+    async postNewPublicChat(@Body() chat: CreateChatDto): Promise<InformationChat | string[]> {
         const channel: undefined | Chat = this.chatGateway.getChannelByName(chat.name);
         let err: string[] = [];
 
@@ -56,20 +59,23 @@ export class ChatController {
             chat.accessType = '1';
             chat.password = bcrypt.hashSync(chat.password, salt);
         }
-        this.chatGateway.createPublic(chat, len);
+        return (this.chatGateway.createPublic(chat, len));
         //console.log(this.chatGateway.getAllPublicByName());
-        return (this.chatGateway.getAllPublicByName());
+        //return (this.chatGateway.getAllPublicByName());
     }
 
     /* Create new private chat and return them by Name */
     /* admin pas fait */
     //@Guard() IL FAUT UN AUTHGUARD
+    /*
+        https://nodejs.org/api/crypto.html#cryptorandombytessize-callback
+    */
     @Post('new-private')
-    async postNewPrivateChat(@Body() chat: CreateChatDto): Promise<InformationChat[] | string[]> {
+    async postNewPrivateChat(@Body() chat: CreateChatDto): Promise<InformationChat | string[]> {
         const channel: undefined | Chat = this.chatGateway.getChannelByName(chat.name);
         let err: string[] = [];
-    
-        if (chat.accessType != '1')
+
+        if (chat.accessType != '2')
             throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
         if (chat.name == chat.password)
             err.push("hasErrorPsw");
@@ -77,10 +83,10 @@ export class ChatController {
             err.push("hasErrorExist");
         if (err.length > 0)
             return (err);
-        const id:string = "01as";
+        const id: string = crypto.randomBytes(4).toString('hex');
         let salt = 10;
         if (chat.password != '') {
-            chat.accessType = '2';
+            chat.accessType = '3';
             chat.password = bcrypt.hashSync(chat.password, salt);
         }
         chat.lstUsr = new Map<string | number, string>;
@@ -89,10 +95,7 @@ export class ChatController {
         /*
             appeler createPrivate + dedans vérifier si id existe déjà
         */
-        this.chatGateway.createPublic(chat, id);
-       /*retourner getAllPrivateByUser*/
-       
-       return (this.chatGateway.getAllPublicByName());
+        return (this.chatGateway.createPublic(chat, id));
     }
 
     //@Guard() IL FAUT UN AUTHGUARD

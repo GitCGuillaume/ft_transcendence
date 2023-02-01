@@ -5,7 +5,7 @@ import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import img from "../assets/react.svg";
 import scroll from 'react-scroll';
 //import { io, Socket } from 'socket.io-client';
-import {SocketContext} from '../contexts/Socket';
+import { SocketContext } from '../contexts/Socket';
 
 type lstMsg = {
     lstMsg: Array<{
@@ -26,50 +26,49 @@ const ListMsg = (props: any) => {
         arrayLength = 0;
     useEffect(() => {
         if (scrollBottom && scrollBottom.current)
-           EScroll.scrollToBottom({containerId: "containerElement", duration: 0});
+            EScroll.scrollToBottom({ containerId: "containerElement", duration: 0 });
     }, [props.lstMsg, props.id, scrollBottom.current])
     return (
         <Element name="container" className="element fullBox" id="containerElement" ref={scrollBottom}>
             {
-            props.lstMsg &&
-            props.lstMsg.slice(arrayLength, props.lstMsg.length).map((msg: any) => (
-                <React.Fragment key={++i}>
-                    <div><img src={img} className="chatBox" />
-                        <label className="chatBox">{msg.username}</label>
-                    </div>
-                    <span className="chatBox">{msg.content}</span>
-                </React.Fragment>
-            ))
-        }
+                props.lstMsg &&
+                props.lstMsg.slice(arrayLength, props.lstMsg.length).map((msg: any) => (
+                    <React.Fragment key={++i}>
+                        <div><img src={img} className="chatBox" />
+                            <label className="chatBox">{msg.username}</label>
+                        </div>
+                        <span className="chatBox">{msg.content}</span>
+                    </React.Fragment>
+                ))
+            }
         </Element>
     )
 }
 
 /* Leave chat */
-const handleLeave = async (e: React.MouseEvent<HTMLButtonElement>, usrSocket: any, obj: {id: string,
+const handleLeave = async (e: React.MouseEvent<HTMLButtonElement>, usrSocket: any, obj: {
+    id: string,
     idUser: string,
-    username: string,}, navigate: any) => {
+    username: string,
+}, navigate: any) => {
     e.preventDefault();
     console.log(obj);
-    usrSocket.emit('leaveRoomChat', obj, (res:any) => {
+    usrSocket.emit('leaveRoomChat', obj, (res: any) => {
         console.log("leave chat : " + res);
         navigate("/channels");
     });
 }
 /* Post msg */
 const handleSubmitButton = (e: React.MouseEvent<HTMLButtonElement>,
-    usrSocket: any, obj: any, ref: any, setMsg: any) =>
-{
+    usrSocket: any, obj: any, ref: any, setMsg: any) => {
     e.preventDefault();
     usrSocket.emit('sendMsg', obj);
     setMsg("");
     ref.current.value = "";
 }
 const handleSubmitArea = (e: React.KeyboardEvent<HTMLTextAreaElement>,
-    usrSocket: any, obj: any, ref: any, setMsg: any) =>
-{
-    if (e.key === "Enter" && e.shiftKey === false)
-    {
+    usrSocket: any, obj: any, ref: any, setMsg: any) => {
+    if (e.key === "Enter" && e.shiftKey === false) {
         e.preventDefault();
         usrSocket.emit('sendMsg', obj);
         setMsg("");
@@ -86,7 +85,8 @@ const MainChat = (props: any) => {
     const usrSocket = useContext(SocketContext);
     useEffect(() => {
         //subscribeChat
-        usrSocket.emit("joinRoomChat", {id: props.id,
+        usrSocket.emit("joinRoomChat", {
+            id: props.id,
             idUser: window.navigator.userAgent,
             username: window.navigator.userAgent,
             //name: props.getLocation.state.name,
@@ -101,17 +101,20 @@ const MainChat = (props: any) => {
         return (() => {
             //unsubscribeChat
             console.log("unmount");
-            usrSocket.emit("stopEmit", {id: props.id /*, name: props.getLocation.state.name*/}, () => {
+            usrSocket.emit("stopEmit", { id: props.id /*, name: props.getLocation.state.name*/ }, () => {
                 setOnline(false);
             });
         })
     }, [props.id]);
     const [lstMsg, setLstMsg] = useState<lstMsg[]>([] as lstMsg[]);
+    const [chatName, setChatName] = useState<string>("");
     useEffect(() => {
-        const ft_lst = async () => { 
+        const ft_lst = async () => {
             const res = await fetch('http://' + location.host + '/api/chat/' + props.id).then(res => res.json());
-            if (typeof res.lstMsg != "undefined")
+            if (typeof res.lstMsg != "undefined") {
                 setLstMsg(res.lstMsg);
+                setChatName(res.name);
+            }
             console.log("load...");
         }
         ft_lst();
@@ -124,8 +127,10 @@ const MainChat = (props: any) => {
             console.log("liste unmount");
             usrSocket.off("sendBackMsg");
             setLstMsg([]);
+            setChatName("");
         });
     }, [lstMsg.keys, props.id])
+
     const [msg, setMsg] = useState<null | string>(null);
     const navigate = useNavigate();
 
@@ -134,35 +139,38 @@ const MainChat = (props: any) => {
     else if (typeof online == "undefined")
         return (<article className='containerChat'>Connecting to chat...</article>)
     return (<>
-    <p style={{color: "pink"}}>{msg}</p>
         <article className='containerChat'>
-            <div className="chatName"><span style={{ flex: 1 }}>{props.getLocation.state.name}</span>
-            <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleLeave(e,
-                usrSocket, {
+            <div className="chatName"><span style={{ flex: 1 }}>{chatName}</span>
+                <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleLeave(e,
+                    usrSocket, {
                     id: props.id,
                     idUser: window.navigator.userAgent,
                     username: window.navigator.userAgent,
                     /*name: props.getLocation.state.name*/
                 }, navigate)}
-                className='chatLeave'>Leave</button>
+                    className='chatLeave'>Leave</button>
             </div>
-            <ListMsg lstMsg={lstMsg}/>
+            <ListMsg lstMsg={lstMsg} />
             <div className="sendMsg">
                 <textarea ref={refElem} id="submitArea"
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMsg(e.currentTarget.value)}
-                    onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => 
-                    handleSubmitArea(e,
-                        usrSocket, {id: props.id,
-                        idUser: window.navigator.userAgent,
-                        content: msg},
-                        refElem,
-                        setMsg)}
+                    onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) =>
+                        handleSubmitArea(e,
+                            usrSocket, {
+                            id: props.id,
+                            idUser: window.navigator.userAgent,
+                            content: msg
+                        },
+                            refElem,
+                            setMsg)}
                     className="chatBox" name="msg"></textarea>
                 <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleSubmitButton(e,
-                    usrSocket, {id: props.id,
+                    usrSocket, {
+                    id: props.id,
                     idUser: window.navigator.userAgent,
-                    content: msg}, refElem, setMsg)}
-                className="chatBox">Go</button>
+                    content: msg
+                }, refElem, setMsg)}
+                    className="chatBox">Go</button>
             </div>
         </article>
         <article className='right'>
@@ -192,7 +200,7 @@ const hasPassword = (id: Readonly<string>): Promise<boolean> => {
         .then(res => res.json()));
 }
 
-const   DisplayErrorPasswordBox = (props: {error: boolean}) => {
+const DisplayErrorPasswordBox = (props: { error: boolean }) => {
     if (props.error === true)
         return (<p>Wrong password</p>);
     return (<></>);
@@ -215,11 +223,10 @@ const PasswordBox = (props: Readonly<any>): JSX.Element => {
     if (props.hasPsw === true && valid == false) {
         return (<article className='containerChat'>
             <p>This channel require a password</p>
-            <form onSubmit={async (e: React.FormEvent<HTMLFormElement>) => 
-                {
-                    setValid(await onSubmit(e, value, props.id));
-                    valid === false ? setError(true) : setError(false);
-                }}>
+            <form onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+                setValid(await onSubmit(e, value, props.id));
+                valid === false ? setError(true) : setError(false);
+            }}>
                 <label>Password * :</label>
                 <input type="password" name="psw"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

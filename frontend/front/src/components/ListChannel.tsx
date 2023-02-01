@@ -46,23 +46,23 @@ const ErrorSubmit = (props: any) => {
     return (<></>);
 }
 
-const onSubmitJoin = async (e:FormEvent<HTMLFormElement>, name: string | null, navigate: any) => {
+const onSubmitJoin = async (e: FormEvent<HTMLFormElement>, name: string | null, navigate: any) => {
     e.preventDefault();
-    navigate({ pathname: "/channels/" + name }, { state: { name: name, username: "" }});
+    navigate({ pathname: "/channels/" + name }, { state: { name: name, username: "" } });
 }
 
 const OpenPrivateChat = (props: any) => {
     const navigate = useNavigate();
     const [name, setName] = useState<string | null>(null);
 
-    return (<form onSubmit={(e:FormEvent<HTMLFormElement>) => onSubmitJoin(e, name, navigate)}>
+    return (<form onSubmit={(e: FormEvent<HTMLFormElement>) => onSubmitJoin(e, name, navigate)}>
         <label>Enter a private ID to join a channel
             <input type="text"
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setName(e.currentTarget.value)}
+                    setName(e.currentTarget.value)}
                 placeholder='Enter channel name'
                 name="privateChannelName"
-                />
+            />
         </label>
         <input type="submit" value="Join private channel" />
     </form>);
@@ -88,20 +88,35 @@ class ListChannel extends React.Component<{}, State> {
         this.onSubmit = this.onSubmit.bind(this);
     }
     componentDidMount = (): void => {
-        fetch('http://' + location.host + '/api/chat/list/')
+        fetch('http://' + location.host + '/api/chat/public/')
             .then(res => res.json())
             .then(res => {
                 this.setState({
                     listChannel: res
                 })
             })
+        fetch('http://' + location.host + '/api/chat/private/')
+            .then(res => res.json())
+            .then(res => {
+                this.setState({
+                    listChannelPrivate: res
+                })
+            })
     }
     onClick = (e: MouseEvent<HTMLButtonElement>): void => {
-        fetch('http://' + location.host + '/api/chat/list/')
+        fetch('http://' + location.host + '/api/chat/public/')
             .then(res => res.json())
             .then(res => {
                 this.setState({
                     listChannel: res, hasErrorPsw: false,
+                    hasErrorExist: false
+                })
+            })
+        fetch('http://' + location.host + '/api/chat/private/')
+            .then(res => res.json())
+            .then(res => {
+                this.setState({
+                    listChannelPrivate: res, hasErrorPsw: false,
                     hasErrorExist: false
                 })
             })
@@ -117,7 +132,7 @@ class ListChannel extends React.Component<{}, State> {
 
     onSubmit = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
-        let elem = new Map<string, number>;
+        //let elem = new Map<string, number>;
 
         /* Can't send a map to HTTP REQUEST so need convert */
         if (this.state.rad == "0") {
@@ -148,7 +163,10 @@ class ListChannel extends React.Component<{}, State> {
                 } else if (res.length === 2 && res[0] === "hasErrorPsw" && res[1] === "hasErrorExist")
                     this.setState({ hasErrorPsw: true, hasErrorExist: true });
                 else
-                    this.setState({ listChannel: res, hasErrorPsw: false, hasErrorExist: false });
+                    this.setState({
+                        listChannel: [...this.state.listChannel, res],
+                        hasErrorPsw: false, hasErrorExist: false
+                    });
             });
         }
         else {
@@ -177,7 +195,10 @@ class ListChannel extends React.Component<{}, State> {
                 } else if (res.length === 2 && res[0] === "hasErrorPsw" && res[1] === "hasErrorExist")
                     this.setState({ hasErrorPsw: true, hasErrorExist: true });
                 else
-                    this.setState({ listChannelPrivate: res, hasErrorPsw: false, hasErrorExist: false });
+                    this.setState({
+                        listChannelPrivate: [...this.state.listChannelPrivate, res],
+                        hasErrorPsw: false, hasErrorExist: false
+                    });
             });
         }
     }
@@ -204,7 +225,7 @@ class ListChannel extends React.Component<{}, State> {
         let i: number = 0;
         const TypeAccess = (props: Props): JSX.Element => {
             const access: Readonly<number> = props.access;
-            if (access == 1)
+            if (access == 2)
                 return (<>Private</>)
             return (<>Password required</>)
         };
@@ -218,7 +239,7 @@ class ListChannel extends React.Component<{}, State> {
             }
         </tbody>)
     }
-    
+
     render(): JSX.Element {
         return (<section className='containerChannel'>
             <h1>List channels + (affichage liste privée à faire + persist dtb)</h1>
@@ -231,7 +252,7 @@ class ListChannel extends React.Component<{}, State> {
                     </thead>
                     <this.PrintListPublic />
                 </table>
-                <table style={{margin: "auto auto auto 20px"}}>
+                <table style={{ margin: "auto auto auto 20px" }}>
                     <thead>
                         <tr>
                             <th>Private Channel name</th><th>Owner</th><th>Access type</th>
@@ -245,11 +266,11 @@ class ListChannel extends React.Component<{}, State> {
                 <form onSubmit={this.onSubmit}>
                     <input type="text" onChange={this.onChange} placeholder='Enter channel name' name="channelName" />
                     <label><input type="radio" onChange={this.onChange} name="rad" value="0" checked={this.state.rad === "0"} />Public</label>
-                    <label><input type="radio" onChange={this.onChange} name="rad" value="1" checked={this.state.rad === "1"} />Private</label>
+                    <label><input type="radio" onChange={this.onChange} name="rad" value="2" checked={this.state.rad === "2"} />Private</label>
                     <input type="text" onChange={this.onChange} placeholder='Password' name="password" />
                     <input type="submit" onChange={this.onChange} value="Add Channel" />
                 </form>
-                <OpenPrivateChat/>
+                <OpenPrivateChat />
                 <ErrorSubmit hasErrorPsw={this.state.hasErrorPsw} hasErrorExist={this.state.hasErrorExist} />
             </article>
             <Outlet />

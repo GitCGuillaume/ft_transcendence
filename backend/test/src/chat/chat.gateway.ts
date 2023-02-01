@@ -39,6 +39,18 @@ class SendMsg {
   BONUS part https://dev.to/bravemaster619/how-to-use-socket-io-client-correctly-in-react-app-o65
 */
 
+const filterAccessPublic = (elem: Chat) => {
+  if (elem.accessType === "0" || elem.accessType === "1")
+    return (true);
+  return (false);
+}
+
+const filterAccessPrivate = (elem: Chat) => {
+  if (elem.accessType === "2" || elem.accessType === "3")
+    return (true);
+  return (false);
+}
+
 @WebSocketGateway({
   cors: {
     origin: "http://127.0.0.1:4000", credential: true
@@ -48,10 +60,14 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @WebSocketServer() server: Server;
   afterInit(server: Server) { }
   private readonly publicChats: Chat[] = [];
-  //private readonly privateChats: Chat[] = [];
 
   getAllPublic(): Chat[] {
-    return this.publicChats;
+    let arr: Chat[] = this.publicChats.filter(filterAccessPublic);
+    return arr;
+  }
+  getAllPrivate(): Chat[] {
+    let arr: Chat[] = this.publicChats.filter(filterAccessPrivate);
+    return arr;
   }
   getAllPublicByName(): InformationChat[] {
     let arrName: InformationChat[] = [];
@@ -97,7 +113,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     return (this.privateChats[elem]);
   }*/
-  createPublic(chat: CreateChatDto, id: string) {
+  createPublic(chat: CreateChatDto, id: string): InformationChat {
     chat.id = id;
     let newChat: Chat = {
       id: chat.id, name: chat.name, owner: chat.owner,
@@ -107,6 +123,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       lstBan: chat.lstBan
     };
     this.publicChats.push(newChat);
+    const return_chat: InformationChat = {
+      id: newChat.id,
+      name: newChat.name,
+      owner: newChat.owner,
+      accessType: newChat.accessType,
+    }
+    return (return_chat);
   }
   /*createPrivate(chat: CreateChatDto, id: string): string {
     chat.id = id;
@@ -121,8 +144,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     };
     this.privateChats.push(newChat);
    */ /* droit retourner le chat créé */
-   // return (newChat.id);
- // }
+  // return (newChat.id);
+  // }
   setNewUserChannel(id: Readonly<string>,
     idUsr: Readonly<number | string>,
     username: Readonly<string>,
@@ -131,8 +154,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const index = this.publicChats.findIndex(x => x.id == id);
     if (index === -1)
       return (undefined);
-    if (this.publicChats[index].password != '')
-    {
+    if (this.publicChats[index].password != '') {
       const comp = bcrypt.compareSync(psw, this.publicChats[index].password);
       if (comp === false)
         return (undefined)
@@ -147,12 +169,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     console.log("joinRoomChat");
     console.log(data);
     const newUser = this.setNewUserChannel(data.id, data.idUser, data.username, data.psw);
-    if (typeof newUser === "undefined")
-    {
+    if (typeof newUser === "undefined") {
       console.log("join room undefined");
       return (false);
-    
-    }const getName = this.getChannelById(data.id)?.name;
+
+    } const getName = this.getChannelById(data.id)?.name;
     console.log("name: " + getName);
     console.log("data.id: " + data.id + " name: " + getName);
     socket.join(data.id + getName);
@@ -161,7 +182,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('leaveRoomChat')
   async leaveRoomChat(@ConnectedSocket() socket: Readonly<Socket>,
     @MessageBody() data: Readonly<Room>): Promise<string | undefined> {
-      console.log(data);
+    console.log(data);
     const index = this.publicChats.findIndex(x => x.id == data.id);
 
     if (index === -1)
@@ -179,12 +200,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('stopEmit')
   async stopEmit(@ConnectedSocket() socket: Readonly<Socket>,
     @MessageBody() data: Readonly<any>) {
-      const getName = this.getChannelById(data.id)?.name;
-      socket.leave(data.id + getName);
-    }
+    const getName = this.getChannelById(data.id)?.name;
+    socket.leave(data.id + getName);
+  }
   /* est-ce que je peux chercher l'user enregistré dans le gateway depuis le middleware? */
   @SubscribeMessage('sendMsg')
-  newPostChat(@MessageBody() data: Readonly<SendMsg>){
+  newPostChat(@MessageBody() data: Readonly<SendMsg>) {
     console.log(data);
     const chat: Chat[] = this.publicChats;
     const index = chat.findIndex(x => x.id == data.id);
@@ -195,7 +216,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       return ("User not found");
     //if typeChat === public
     console.log("index: " + index);
-    chat[index].lstMsg.push({idUser: data.idUser, username: getUsername, content: data.content});
+    chat[index].lstMsg.push({ idUser: data.idUser, username: getUsername, content: data.content });
     //else if (typechat === private)
     console.log(chat[index].id + chat[index].name);
     const length = chat[index].lstMsg.length;
@@ -224,9 +245,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('events')
   handleEvents(@MessageBody() data: []
     , @ConnectedSocket() socket: Socket) {
-      /*console.log(data);
-      console.log(this.publicChats.length);
-      console.log(socket.handshake.query);*/
+    /*console.log(data);
+    console.log(this.publicChats.length);
+    console.log(socket.handshake.query);*/
     this.server.emit("events", socket.id);
   }
   @SubscribeMessage('message')
