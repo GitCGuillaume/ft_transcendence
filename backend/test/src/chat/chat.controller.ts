@@ -18,8 +18,8 @@ export class ChatController {
     }
     @Get('private')
     async getAllPrivate(@Query('id') id: string): Promise<Chat[]> {
-        console.log(this.chatGateway.getAllPrivate("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0"));
-        return (this.chatGateway.getAllPrivate("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0"));
+        console.log(this.chatGateway.getAllPrivate(id));
+        return (this.chatGateway.getAllPrivate(id));
     }
     /*
         id = id channel

@@ -67,6 +67,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         return (true);
       return (false);
     });
+    console.log(arr);
     return arr;
   }
   getAllPublicByName(): InformationChat[] {

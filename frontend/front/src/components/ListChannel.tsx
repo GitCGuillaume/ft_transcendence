@@ -22,7 +22,7 @@ type State = {
     passwordPrivate: string,
     hasErrorPsw: boolean,
     hasErrorExist: boolean,
-    redirect: boolean
+    privateIdChannel: string
 }
 
 type Props = {
@@ -81,7 +81,7 @@ class ListChannel extends React.Component<{}, State> {
             passwordPrivate: '',
             hasErrorPsw: false,
             hasErrorExist: false,
-            redirect: false
+            privateIdChannel: ''
         }
         this.onClick = this.onClick.bind(this);
         this.onChange = this.onChange.bind(this);
@@ -95,8 +95,9 @@ class ListChannel extends React.Component<{}, State> {
                     listChannel: res
                 })
             })
-        fetch('http://' + location.host + '/api/chat/private/')
-            .then(res => res.json())
+        fetch('http://' + location.host + '/api/chat/private?' + new URLSearchParams({
+            id: window.navigator.userAgent
+        })).then(res => res.json())
             .then(res => {
                 this.setState({
                     listChannelPrivate: res
@@ -112,19 +113,18 @@ class ListChannel extends React.Component<{}, State> {
                     hasErrorExist: false
                 })
             })
-        fetch('http://' + location.host + '/api/chat/private/')
-            .then(res => res.json())
+        fetch('http://' + location.host + '/api/chat/private?' + new URLSearchParams({
+            id: window.navigator.userAgent
+        })).then(res => res.json())
             .then(res => {
                 this.setState({
-                    listChannelPrivate: res, hasErrorPsw: false,
-                    hasErrorExist: false
+                    listChannelPrivate: res
                 })
             })
     }
     onChange = (e: ChangeEvent<HTMLInputElement>): void => {
         const name = e.currentTarget.name;
         const value = e.currentTarget.value;
-        console.log(e.currentTarget);
         this.setState((prevState => (
             { ...prevState, [name]: value }
         )));
@@ -197,7 +197,8 @@ class ListChannel extends React.Component<{}, State> {
                 else
                     this.setState({
                         listChannelPrivate: [...this.state.listChannelPrivate, res],
-                        hasErrorPsw: false, hasErrorExist: false
+                        hasErrorPsw: false, hasErrorExist: false,
+                        privateIdChannel: res.id
                     });
             });
         }
@@ -271,6 +272,7 @@ class ListChannel extends React.Component<{}, State> {
                     <input type="submit" onChange={this.onChange} value="Add Channel" />
                 </form>
                 <OpenPrivateChat />
+                <div><label>New private channel ID</label><span style={{ color: "#FA6405" }}>{this.state.privateIdChannel}</span></div>
                 <ErrorSubmit hasErrorPsw={this.state.hasErrorPsw} hasErrorExist={this.state.hasErrorExist} />
             </article>
             <Outlet />
