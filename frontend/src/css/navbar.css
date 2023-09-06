@@ -1,0 +1,121 @@
+.navbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: #333333;
+    color: white;
+    flex-direction: row;
+}
+
+div.navbar_item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.25s;
+    color: #ffffff;
+}
+
+div.navbar_item_active {
+    background-color: crimson;
+    align-self: center;
+
+}
+
+.navbar_item:hover {
+    background-color: crimson;
+}
+
+a.navbar_link {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+}
+
+a.navbar_link:hover {
+    color: #ffffff;
+}
+
+div.navbar-btn {
+    display: none;
+}
+
+@media screen and (max-width: 1200px) {
+    .navbar {
+        flex-direction: column;
+
+    }
+
+    ul.navbar {
+        display: none;
+    }
+
+    ul.navbar-click {
+        display: flex;
+        height: auto;
+    }
+
+    div.navbar-btn {
+        align-self: flex-start;
+        display: block;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background-color: crimson;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    /* create block */
+    span.navbar-line {
+        display: block;
+        background-color: black;
+        height: 3px;
+        width: 30px;
+        position: relative;
+    }
+
+    /* add element in relative block */
+    span.navbar-line::before,
+    span.navbar-line::after {
+        display: block;
+        background-color: black;
+        content: '';
+        height: 100%;
+        width: 100%;
+        position: absolute;
+    }
+
+    span.navbar-line::before {
+        top: -8px;
+    }
+
+    span.navbar-line::after {
+        top: 8px;
+    }
+}
+
+@media screen and (max-width: 200px) {
+    .navbar {
+        align-items: inherit;
+    }
+}
+
+@media screen and (max-width: 130px) {
+    .navbar {
+        padding: 0;
+        font-size: 10px;
+    }
+    div.navbar-btn {
+        margin-left: 0;
+    }
+}
+
+@media screen and (max-width: 130px) {
+    a.navbar_link {
+        padding: 0;
+    }
+}

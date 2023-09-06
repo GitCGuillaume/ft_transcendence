@@ -1,0 +1,26 @@
+input {
+    font-size: 15px;
+    background-color: aliceblue;
+    width: 100%;
+}
+
+.splash_middle {
+    max-width: 1000px;
+    margin: 0 auto;
+    margin-top: 100px;
+    text-align: center;
+}
+
+.splash_content {
+    max-width: 500px;
+    margin: 60px auto 0 auto;
+}
+
+.transcendence {
+    display: block;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    max-width: 406px;
+    height: auto;
+}

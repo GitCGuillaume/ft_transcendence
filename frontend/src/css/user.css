@@ -1,0 +1,153 @@
+.userInfo {
+    display: none;
+    flex-direction: column;
+    width: 200px;
+    background-color: crimson;
+}
+
+.userInfo>button {
+    width: 100%;
+}
+
+label.userInfo {
+    text-align: center;
+    width: 100%;
+}
+
+.userInfoClick {
+    z-index: 2;
+    display: inline-flex;
+}
+
+.userInfoClick>* {
+    display: inline-flex;
+}
+
+.userInfoClick>img {
+    max-width: 60px;
+    margin: auto;
+}
+
+img.avatar {
+    height: auto;
+    max-width: 100px;
+    width: 100%;
+}
+
+img.avatarList {
+    align-self: flex-start;
+    max-width: 60px;
+    width: 100%;
+    margin: auto
+}
+
+.element>.user {
+    word-break: break-all;
+    background-color: coral;
+}
+
+.profile-table {
+    margin: auto;
+    word-break: break-all;
+}
+
+.profile-table-2 {
+    margin: auto;
+    margin-top: 15px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.status {
+    display: flex;
+}
+
+.status>span {
+    margin-left: 15px;
+}
+
+@media screen and (max-width: 600px) {
+    form>input {
+        width: 95%;
+    }
+
+    h1 {
+        font-size: 2em;
+        margin-left: 15px;
+    }
+
+    .profile-table {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    h1 {
+        font-size: 1em;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    label.userInfo {
+        word-break: break-all;
+        font-size: 1em;
+    }
+    div.fullBoxListUser > span {
+        word-break: break-all;
+        font-size: 1em;
+    }
+    form > input {
+        font-size: 0.5em;
+    }
+}
+
+@media screen and (max-width: 200px) {
+    h1 {
+        font-size: 0.6em;
+    }
+
+    ul {
+        padding: 0;
+    }
+
+    th,
+    td {
+        font-size: 0.5em;
+    }
+    span.txt {
+        font-size: 0.5em;
+    }
+}
+@media screen and (max-width: 150px) {
+    h1 {
+        margin-left: 0;
+    }
+}
+@media screen and (max-width: 110px) {
+    h1 {
+        font-size: 0.3em;
+    }
+
+    ul {
+        padding: 0;
+    }
+
+    th,
+    td,
+    li,
+    label {
+        font-size: 0.4em;
+    }
+
+    .userInfoClick {
+        width: 100% !important;
+    }
+    input[type="submit"] {
+        font-size: 0.3em;
+    }
+    .txt {
+        margin-left: 1px !important;
+    }
+}

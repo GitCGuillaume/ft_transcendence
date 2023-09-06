@@ -1,0 +1,12 @@
+div.invite-game {
+    position: fixed;
+    z-index: 1;
+}
+
+div.invite-game>button.left {
+    background-color: green;
+}
+
+div.invite-game>button.right {
+    background-color: red;
+}

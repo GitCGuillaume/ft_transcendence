@@ -1,0 +1,9 @@
+img {
+  height: auto;
+
+  max-width: 100%;
+}
+
+div.matchmakingPage {
+  font-size: clamp(1vw, 3vh, 4vw);
+}

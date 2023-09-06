@@ -2,9 +2,15 @@
 
 if [ ! -d ./node_modules ];
 then
-	npm install -y
-	npm install -y react-router-dom
-	npm install -y socket.io-client
-	npm install -y react-h5-audio-player
+	npm i -g npm@latest
+	npm i -g @nestjs/cli@latest
+	npm audit fix
+	npm install
+else
+	npm i -g npm@latest
+	npm i -g @nestjs/cli@latest
+	npm audit fix
+	npm update
+	npm update -g
 fi
 exec "$@"

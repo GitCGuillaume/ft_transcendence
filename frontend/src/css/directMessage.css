@@ -1,0 +1,125 @@
+.containerDirectMessage {
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    bottom: 0;
+    z-index: 1;
+    width: 100%;
+    background-color: crimson;
+}
+
+div.listDiscussion {
+    display: flex;
+    flex-direction: column;
+    background-color: red;
+    width: 40%;
+    border: solid 1px black;
+}
+
+div.listDiscussion>* {
+    width: 100%;
+}
+
+ul.listDiscussion {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.listDiscussion>li {
+    overflow: hidden;
+    cursor: pointer;
+    word-break: break-word;
+}
+
+div.listDiscussion>input[type="text"] {
+    height: 20%;
+    margin: 0;
+    padding: 0;
+}
+
+.containerDiscussionBox {
+    max-width: 600px;
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    background-color: red;
+    border: 1px solid black;
+}
+
+
+.containerDirectMessage>span {
+    margin-right: 5px;
+}
+
+.containerDirectMessage>button {
+    height: 40px;
+    align-self: flex-end;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.containerPost {
+    display: flex;
+}
+
+.fold {
+    align-items: center;
+}
+
+.containerPost>textarea {
+    margin: 0;
+    width: 100%;
+}
+
+.containerPost>button {
+    margin: 0;
+    border-radius: 1px;
+    border-color: red;
+}
+
+form.formPm {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+form.formPm>* {
+    width: 100%;
+    margin: 0;
+}
+
+button.update-channel2 {
+    margin: 0;
+}
+
+@media screen and (max-width: 650px) {
+    .containerDirectMessage {
+        left: 0;
+    }
+
+    div.listDiscussion {
+        width: 40%;
+    }
+
+    .containerDiscussionBox {
+        width: 60%;
+    }
+}
+
+@media screen and (max-width: 220px) {
+    article.containerDirectMessage {
+        font-size: 10px;
+    }
+    div.containerPost {
+        flex-direction: column;
+    }
+    form.formPm > input {
+            padding: 0;
+            font-size: 10px;
+    }
+}

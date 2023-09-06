@@ -1,0 +1,184 @@
+.containerChat {
+    display: flex;
+    order: 4;
+    flex-wrap: wrap;
+    flex-direction: row;
+    background-color: crimson;
+    flex-grow: 1;
+    margin: auto;
+    margin-top: 30px;
+    max-width: 600px;
+    min-width: 100px;
+    border: solid 1px black;
+}
+
+.containerChat>div {
+    display: flex;
+    max-width: 600px;
+    min-width: 100px;
+    width: 100%;
+}
+
+.containerChat>p {
+    margin-left: 15px;
+}
+
+.containerChat>form {
+    margin: auto;
+}
+
+.fullBox {
+    display: block !important;
+    width: 100% !important;
+    height: 400px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+    overflow-y: scroll !important;
+}
+
+.sendMsg {
+    flex: 1;
+    height: 40px;
+}
+
+.chatLeave {
+    margin: auto;
+    border-radius: 0;
+    border: 1px solid transparent;
+    font-family: inherit;
+    background-color: #337ab7;
+    color: white;
+    padding: 1em;
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
+}
+
+label.chatBox {
+    align-self: flex-start;
+    text-align: left;
+    overflow-wrap: break-word;
+    width: 100%;
+    min-width: 0px;
+    margin-left: 20px;
+}
+
+span.chatBox {
+    align-self: flex-start;
+    text-align: left;
+    margin: auto;
+    margin-left: 10px;
+    overflow-wrap: break-word;
+    margin-bottom: 20px;
+    margin-right: 10px;
+    max-width: 555px;
+    width: 100%;
+    min-width: 0;
+}
+
+img.chatBox {
+    max-width: 60px;
+    height: auto;
+    margin-left: 10px;
+
+}
+
+.chatName {
+    width: 100%;
+}
+
+textarea.chatBox {
+    width: 85%;
+    resize: initial;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+button.chatBox {
+    border-radius: 0;
+    border-color: black;
+    margin-right: 10px;
+    height: 80%;
+}
+
+/* User List Part */
+article.right {
+    display: flex;
+    flex-direction: column;
+    order: 5;
+    align-items: flex-start;
+    margin: auto;
+    margin-top: 30px;
+    max-width: 450px;
+    width: 450px;
+    background-color: crimson;
+}
+
+article.right>h2 {
+    flex: 1;
+    align-self: center;
+}
+
+.fullBoxListUser {
+    display: flex !important;
+    flex-direction: column;
+    width: 100% !important;
+    height: 300px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    overflow-y: scroll !important;
+}
+
+.fullBoxListUser>span:hover {
+    cursor: pointer;
+}
+
+/* End user list part */
+
+table.tableInfo {
+    width: 100%;
+}
+
+.userInfoClick {
+    position: absolute;
+    width: auto !important;
+    display: inline-flex;
+}
+
+.userInfoClick>* {
+    display: inline-flex;
+}
+
+.pswBox {
+    margin: auto;
+}
+
+@media screen and (max-width: 600px) {
+    label.userInfo {
+        text-align: center;
+    }
+
+    .container-chat {
+        margin: auto;
+        margin-top: 20px;
+    }
+
+    .right {
+        margin: auto;
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    span.chatBox {
+        margin: 0;
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 319px) {
+    div.chatName {
+        flex-direction: column;
+    }
+}
