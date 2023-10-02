@@ -14,6 +14,7 @@
     "@types/randomstring": "^1.1.8",
     "@types/react-scroll": "^1.8.6",
     "debounce": "^1.2.1",
+    "node": "20.7.0",
     "randomstring": "^1.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -21,8 +22,8 @@
     "react-h5-audio-player": "^3.8.6",
     "react-router-dom": "^6.6.2",
     "react-scroll": "^1.8.9",
-    "socket.io-client": "^4.5.4",
-    "react-toastify": "9.1.2"
+    "react-toastify": "9.1.2",
+    "socket.io-client": "^4.5.4"
   },
   "devDependencies": {
     "@types/debounce": "^1.2.1",

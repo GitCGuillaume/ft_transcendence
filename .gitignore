@@ -1,0 +1,6 @@
+.env
+*node_modules/
+.vscode
+backend/dist/*
+.nfs*
+frontend/public/upload_avatar/*
